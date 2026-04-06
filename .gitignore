@@ -1,0 +1,82 @@
+# Node
+node_modules/
+.npm/
+.pnpm-debug.log*
+/.pnp*
+
+# Bun
+.bun/
+
+# Editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Build
+.next/
+dist/
+build/
+
+# Logs
+logs/
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# Misc
+coverage/
+
+# Python
+.venv/
+venv/   
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+
+# VS Code
+.history/
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Test output
+junitxml.xml
+
+# Local dev
+*.sqlite3
+
+# Ignore lock files except for Bun
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
