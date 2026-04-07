@@ -1,11 +1,23 @@
-# Dockerfile for FastAPI backend with Bun
-FROM oven/bun:1.0 AS base
-WORKDIR /app/backend
+FROM python:3.12-slim
 
-COPY backend/package.json backend/bun.lock ./
-RUN bun install --frozen-lockfile
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
+WORKDIR /app
+
+# Copy dependency files first (layer caching)
+COPY backend/pyproject.toml .
+COPY backend/uv.lock . 2>/dev/null || true  
+
+# Install dependencies
+RUN uv sync --frozen --no-cache
+
+# Copy app code
 COPY backend .
 
+# Create non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
 EXPOSE 8000
-CMD ["bun", "run", "dev"]
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
