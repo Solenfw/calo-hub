@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Download, Copy, Info, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 const catalogItems = [
   { code: 'KL-10-244-12', name: 'Mayo-Hegar Needle Holder', desc: '150mm, Tungsten Carbide Inserts' },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Scan, Upload, FileText, Download, Copy, CheckCircle, Lock, EyeOff, HelpCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 export function OCR() {
   return (

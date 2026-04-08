@@ -6,13 +6,13 @@
  */
 
 import React, { useState } from 'react';
-import { Sidebar } from '@/components/Sidebar';
-import { TopNav } from '@/components/TopNav';
-import { Dashboard } from '@/components/Dashboard';
-import { Catalog } from '@/components/Catalog';
-import { QuickConvert } from '@/components/QuickConvert';
-import { OCR } from '@/components/OCR';
-import { ESelector } from '@/components/ESelector';
+import { Sidebar } from './src/components/Sidebar';
+import { TopNav } from './src/components/TopNav';
+import { Dashboard } from './src/components/Dashboard';
+import { Catalog } from './src/components/Catalog';
+import { QuickConvert } from './src/components/QuickConvert';
+import { OCR } from './src/components/OCR';
+import { ESelector } from './src/components/ESelector';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
