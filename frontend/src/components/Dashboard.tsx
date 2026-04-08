@@ -132,7 +132,7 @@ export function Dashboard() {
         <div className="lg:col-span-3">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xl font-bold tracking-tight">Recent Production Files</h3>
-            <button className="text-primary font-bold text-sm hover:underline">View All</button>
+            <button className="cursor-pointer text-primary font-bold text-sm hover:underline">View All</button>
           </div>
           <div className="space-y-4">
             <FileRow 
@@ -193,7 +193,7 @@ function FileRow({ name, info, status, statusColor }: { name: string, info: stri
         <span className={cn("px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-tighter", statusColor)}>
           {status}
         </span>
-        <button className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white rounded-full transition-all">
+        <button className="cursor-pointer opacity-0 group-hover:opacity-100 p-2 hover:bg-white rounded-full transition-all">
           <MoreVertical className="w-4 h-4 text-on-surface-variant" />
         </button>
       </div>

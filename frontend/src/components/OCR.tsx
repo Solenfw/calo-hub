@@ -21,7 +21,7 @@ export function OCR() {
               </div>
               <h3 className="text-xl font-bold text-on-surface mb-2">Upload clinical document</h3>
               <p className="text-on-surface-variant text-center mb-8">Drag and drop your medical PDF or high-resolution image here.<br/>Maximum file size 25MB.</p>
-              <button className="bg-primary text-on-primary px-8 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-primary-dim hover:-translate-y-0.5 transition-all active:scale-95">
+              <button className="cursor-pointer bg-primary text-on-primary px-8 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-primary-dim hover:-translate-y-0.5 transition-all active:scale-95">
                 Browse Files
               </button>
             </div>
@@ -38,7 +38,7 @@ export function OCR() {
           </div>
 
           {/* Action Button */}
-          <button className="w-full bg-primary py-5 rounded-xl text-on-primary font-bold text-lg shadow-lg hover:shadow-primary/20 hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+          <button className="cursor-pointer w-full bg-primary py-5 rounded-xl text-on-primary font-bold text-lg shadow-lg hover:shadow-primary/20 hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
             <Scan className="w-6 h-6" />
             Perform OCR Extraction
           </button>
@@ -88,10 +88,10 @@ export function OCR() {
             <p className="text-on-surface-variant">Validated data from lab_report_042.pdf</p>
           </div>
           <div className="flex gap-3">
-            <button className="bg-surface-container-high px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors flex items-center gap-2">
+            <button className="cursor-pointer bg-surface-container-high px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors flex items-center gap-2">
               <Download className="w-4 h-4" /> Download File
             </button>
-            <button className="bg-surface-container-high px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors flex items-center gap-2">
+            <button className="cursor-pointer bg-surface-container-high px-4 py-2 rounded-lg text-sm font-semibold hover:bg-surface-container-highest transition-colors flex items-center gap-2">
               <Copy className="w-4 h-4" /> Copy to Clipboard
             </button>
           </div>
@@ -116,7 +116,7 @@ export function OCR() {
         </div>
       </section>
 
-      <button className="fixed bottom-8 right-8 bg-primary text-on-primary w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group">
+      <button className="cursor-pointer fixed bottom-8 right-8 bg-primary text-on-primary w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group">
         <HelpCircle className="w-6 h-6" />
       </button>
     </div>

@@ -47,7 +47,7 @@ export function ESelector() {
                 </div>
               </div>
 
-              <button className="w-full mt-4 bg-linear-to-br from-primary to-primary-dim text-on-primary font-bold py-4 rounded-lg flex items-center justify-center gap-3 shadow-lg shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
+              <button className="cursor-pointer w-full mt-4 bg-linear-to-br from-primary to-primary-dim text-on-primary font-bold py-4 rounded-lg flex items-center justify-center gap-3 shadow-lg shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
                 Find Matching Codes
                 <Search className="w-4 h-4" />
               </button>
@@ -100,11 +100,11 @@ export function ESelector() {
           </div>
 
           <div className="mt-4 flex items-center justify-end gap-4">
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container-low transition-colors">
+            <button className="cursor-pointer flex items-center gap-2 px-6 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant font-bold hover:bg-surface-container-low transition-colors">
               <Download className="w-4 h-4" />
               Export PDF Spec Sheet
             </button>
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-secondary text-on-secondary font-bold hover:opacity-90 transition-opacity">
+            <button className="cursor-pointer flex items-center gap-2 px-6 py-2.5 rounded-lg bg-secondary text-on-secondary font-bold hover:opacity-90 transition-opacity">
               <Science className="w-4 h-4" />
               Request Sample Kit
             </button>
@@ -171,8 +171,8 @@ function ProductCard({ code, name, match, length, material, thread, image }: any
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <button className="p-2 rounded-lg hover:bg-surface transition-colors"><Heart className="w-4 h-4 text-outline" /></button>
-          <button className="p-2 rounded-lg bg-primary/5 hover:bg-primary/10 text-primary transition-colors"><ShoppingCart className="w-4 h-4" /></button>
+          <button className="cursor-pointer p-2 rounded-lg hover:bg-surface transition-colors"><Heart className="w-4 h-4 text-outline" /></button>
+          <button className="cursor-pointer p-2 rounded-lg bg-primary/5 hover:bg-primary/10 text-primary transition-colors"><ShoppingCart className="w-4 h-4" /></button>
         </div>
       </div>
     </div>

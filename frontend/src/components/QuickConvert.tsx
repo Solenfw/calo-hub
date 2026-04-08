@@ -48,11 +48,11 @@ export function QuickConvert() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
-          <button className="bg-linear-to-br from-primary to-primary-dim text-on-primary px-12 py-4 rounded-lg font-bold text-lg shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-3 w-full md:w-auto">
+          <button className="cursor-pointer bg-linear-to-br from-primary to-primary-dim text-on-primary px-12 py-4 rounded-lg font-bold text-lg shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-3 w-full md:w-auto">
             <RefreshCw className="w-5 h-5" />
             Convert
           </button>
-          <button className="bg-secondary-container text-on-secondary-container px-8 py-4 rounded-lg font-semibold hover:bg-secondary-container/80 transition-all flex items-center gap-3 w-full md:w-auto justify-center">
+          <button className="cursor-pointer bg-secondary-container text-on-secondary-container px-8 py-4 rounded-lg font-semibold hover:bg-secondary-container/80 transition-all flex items-center gap-3 w-full md:w-auto justify-center">
             <Upload className="w-5 h-5" />
             Import CSV
           </button>
@@ -100,7 +100,7 @@ export function QuickConvert() {
                 <p className="text-sm font-bold text-on-surface">1,240 Units</p>
               </div>
             </div>
-            <button className="w-full py-2 bg-on-surface text-surface rounded-lg text-xs font-bold hover:bg-on-surface/90 transition-all">Add to Cart</button>
+            <button className="cursor-pointer w-full py-2 bg-on-surface text-surface rounded-lg text-xs font-bold hover:bg-on-surface/90 transition-all">Add to Cart</button>
           </div>
         </div>
       </div>

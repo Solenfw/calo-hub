@@ -45,7 +45,7 @@ export function Catalog() {
             <ChevronLeft className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-outline-variant w-4 h-4 rotate-270" />
           </div>
         </div>
-        <button className="bg-primary text-on-primary px-8 py-4 rounded-lg font-bold flex items-center gap-2 hover:bg-primary-dim transition-all shadow-lg shadow-primary/10 active:scale-95">
+        <button className="cursor-pointer bg-primary text-on-primary px-8 py-4 rounded-lg font-bold flex items-center gap-2 hover:bg-primary-dim transition-all shadow-lg shadow-primary/10 active:scale-95">
           <Filter className="w-4 h-4" />
           Search
         </button>
@@ -88,11 +88,11 @@ export function Catalog() {
           </div>
           <div className="p-8 bg-surface-container-low/50 flex justify-center">
             <nav className="flex items-center gap-2">
-              <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><ChevronLeft className="w-4 h-4" /></button>
-              <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
-              <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors">2</button>
-              <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors">3</button>
-              <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><ChevronRight className="w-4 h-4" /></button>
+              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><ChevronLeft className="w-4 h-4" /></button>
+              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
+              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors">2</button>
+              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors">3</button>
+              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><ChevronRight className="w-4 h-4" /></button>
             </nav>
           </div>
         </div>
@@ -119,7 +119,7 @@ export function Catalog() {
               <DetailRow label="Origin" value="Germany" />
               <DetailRow label="Sterility" value="Non-Sterile" />
             </div>
-            <button className="w-full mt-8 bg-secondary-container text-on-secondary-container py-4 rounded-lg font-bold hover:bg-secondary-fixed-dim transition-all active:scale-95">
+            <button className="cursor-pointer w-full mt-8 bg-secondary-container text-on-secondary-container py-4 rounded-lg font-bold hover:bg-secondary-fixed-dim transition-all active:scale-95">
               Request Technical Sheet
             </button>
           </div>
@@ -128,7 +128,7 @@ export function Catalog() {
             <div className="relative z-10">
               <h5 className="text-primary font-manrope font-bold text-lg mb-2">Direct Integration</h5>
               <p className="text-primary/70 text-sm mb-6">Seamlessly export these codes directly to your medical inventory management system.</p>
-              <button className="inline-flex items-center gap-2 text-primary font-bold text-sm">
+              <button className="cursor-pointer inline-flex items-center gap-2 text-primary font-bold text-sm">
                 Learn More
                 <ArrowRight className="w-4 h-4" />
               </button>
@@ -139,7 +139,7 @@ export function Catalog() {
 
       {/* FAB Action */}
       <div className="fixed bottom-8 right-8">
-        <button className="w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform">
+        <button className="cursor-pointer w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform">
           <Plus className="w-6 h-6" />
         </button>
       </div>

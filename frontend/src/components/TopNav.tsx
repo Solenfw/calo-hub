@@ -19,10 +19,10 @@ export function TopNav() {
         </div>
         
         <div className="flex items-center gap-4">
-          <button className="active:scale-95 transition-transform text-outline hover:text-primary">
+          <button className="cursor-pointer active:scale-95 transition-transform text-outline hover:text-primary">
             <Bell className="w-5 h-5" />
           </button>
-          <button className="active:scale-95 transition-transform text-outline hover:text-primary">
+          <button className="cursor-pointer active:scale-95 transition-transform text-outline hover:text-primary">
             <Settings className="w-5 h-5" />
           </button>
           

@@ -47,7 +47,7 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
               key={item.id}
               onClick={() => onPageChange(item.id)}
               className={cn(
-                "group flex items-center gap-4 px-6 py-3 ml-4 transition-all duration-200 hover:translate-x-1",
+                "cursor-pointer group flex items-center gap-4 px-6 py-3 ml-4 transition-all duration-200 hover:translate-x-1",
                 isActive 
                   ? "bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 rounded-l-full shadow-sm font-bold" 
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300"
