@@ -1,4 +1,8 @@
+"use client";
+
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   Home, 
   BookOpen, 
@@ -7,22 +11,26 @@ import {
   CheckSquare, 
   Activity
 } from 'lucide-react';
-import { cn } from '../lib/utils';
-
-interface SidebarProps {
-  activePage: string;
-  onPageChange: (page: string) => void;
-}
+import { cn } from '@/lib/utils';
 
 const navItems = [
-  { id: 'home', label: 'Home', icon: Home },
-  { id: 'catalog', label: 'Online Catalog', icon: BookOpen },
-  { id: 'convert', label: 'Quick Convert', icon: RefreshCw },
-  { id: 'ocr', label: 'OCR', icon: Scan },
-  { id: 'eselector', label: 'eSelector', icon: CheckSquare },
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/catalog', label: 'Online Catalog', icon: BookOpen },
+  { href: '/convert', label: 'Quick Convert', icon: RefreshCw },
+  { href: '/ocr', label: 'OCR', icon: Scan },
+  { href: '/eselector', label: 'eSelector', icon: CheckSquare },
 ];
 
-export function Sidebar({ activePage, onPageChange }: SidebarProps) {
+function isNavActive(pathname: string, href: string) {
+  if (href === '/') {
+    return pathname === '/' || pathname === '/dashboard';
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="h-screen w-64 fixed left-0 top-0 pt-20 bg-slate-50 dark:bg-slate-950 flex-col gap-2 border-r-0 z-40 hidden md:flex">
       <div className="px-8 mb-8">
@@ -40,22 +48,22 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
       <nav className="flex flex-col gap-1 pr-4">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activePage === item.id;
+          const active = isNavActive(pathname, item.href);
           
           return (
-            <button
-              key={item.id}
-              onClick={() => onPageChange(item.id)}
+            <Link
+              key={item.href}
+              href={item.href}
               className={cn(
                 "cursor-pointer group flex items-center gap-4 px-6 py-3 ml-4 transition-all duration-200 hover:translate-x-1",
-                isActive 
+                active 
                   ? "bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 rounded-l-full shadow-sm font-bold" 
                   : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300"
               )}
             >
               <Icon className={cn("w-5 h-5")} />
               <span className="font-inter text-sm font-medium">{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>

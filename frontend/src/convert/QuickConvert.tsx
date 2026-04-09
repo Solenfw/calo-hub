@@ -1,6 +1,5 @@
 import React from 'react';
-import { RefreshCw, Upload, Info, Package as Inventory, ShoppingCart } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { RefreshCw, Upload, Info } from 'lucide-react';
 
 export function QuickConvert() {
   return (

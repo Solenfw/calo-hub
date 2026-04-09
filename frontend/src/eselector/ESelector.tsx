@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckSquare, Search, Sliders, Heart, ShoppingCart, Download, FlaskConical as Science, Verified } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn } from '@/lib/utils';
 
 export function ESelector() {
   return (
