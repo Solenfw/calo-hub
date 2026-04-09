@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export function Dashboard() {
   return (
@@ -39,7 +40,7 @@ export function Dashboard() {
         {/* Online Catalog Card */}
         <motion.div 
           whileHover={{ scale: 1.01 }}
-          className="group lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl ambient-shadow flex flex-col justify-between hover:bg-surface-container-low transition-all duration-300 cursor-pointer overflow-hidden relative"
+          className="group lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl ambient-shadow flex flex-col justify-between hover:bg-surface-container-low transition-all duration-300 overflow-hidden relative"
         >
           <div className="relative z-10">
             <div className="w-12 h-12 rounded-lg bg-primary-container text-primary flex items-center justify-center mb-6">
@@ -49,7 +50,7 @@ export function Dashboard() {
             <p className="text-on-surface-variant max-w-md">Browse and manage our extensive database of medical supplies and production components with real-time inventory tracking.</p>
           </div>
           <div className="mt-8 flex items-center gap-2 text-primary font-semibold text-sm group-hover:gap-4 transition-all">
-            <span>Open Catalog</span>
+            <Link href="/catalog">Open Catalog</Link>
             <ArrowRight className="w-4 h-4" />
           </div>
           <div className="absolute right-[-10%] bottom-[-10%] opacity-5 group-hover:opacity-10 transition-opacity">
@@ -60,7 +61,7 @@ export function Dashboard() {
         {/* Quick Convert Card */}
         <motion.div 
           whileHover={{ scale: 1.01 }}
-          className="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow flex flex-col justify-between hover:bg-surface-container-low transition-all duration-300 cursor-pointer"
+          className="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow flex flex-col justify-between hover:bg-surface-container-low transition-all duration-300"
         >
           <div>
             <div className="w-12 h-12 rounded-lg bg-tertiary-container text-tertiary flex items-center justify-center mb-6">
@@ -70,7 +71,7 @@ export function Dashboard() {
             <p className="text-on-surface-variant">Rapidly transform medical units and technical specifications between international standards.</p>
           </div>
           <div className="mt-8 flex items-center gap-2 text-primary font-semibold text-sm group-hover:gap-4 transition-all">
-            <span>Start Converting</span>
+            <Link href="/convert">Start Converting</Link>
             <ArrowRight className="w-4 h-4" />
           </div>
         </motion.div>
@@ -78,7 +79,7 @@ export function Dashboard() {
         {/* OCR Scanner Card */}
         <motion.div 
           whileHover={{ scale: 1.01 }}
-          className="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow flex flex-col justify-between hover:bg-surface-container-low transition-all duration-300 cursor-pointer relative overflow-hidden"
+          className="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow flex flex-col justify-between hover:bg-surface-container-low transition-all duration-300 relative overflow-hidden"
         >
           <div className="relative z-10">
             <div className="w-12 h-12 rounded-lg bg-secondary-container text-secondary flex items-center justify-center mb-6">
@@ -88,7 +89,7 @@ export function Dashboard() {
             <p className="text-on-surface-variant">Extract text and data from physical medical reports with our high-precision optical recognition engine.</p>
           </div>
           <div className="mt-8 flex items-center gap-2 text-primary font-semibold text-sm group-hover:gap-4 transition-all">
-            <span>Scan Document</span>
+            <Link href="/ocr">Scan Document</Link>
             <ArrowRight className="w-4 h-4" />
           </div>
           <div className="absolute top-0 right-0 p-4">
@@ -99,7 +100,7 @@ export function Dashboard() {
         {/* eSelector Card */}
         <motion.div 
           whileHover={{ scale: 1.01 }}
-          className="group lg:col-span-2 bg-primary text-on-primary p-8 rounded-xl shadow-[0_12px_40px_rgba(0,93,182,0.15)] flex items-center justify-between hover:bg-primary-dim transition-all duration-300 cursor-pointer relative overflow-hidden"
+            className="group lg:col-span-2 bg-primary text-on-primary p-8 rounded-xl shadow-[0_12px_40px_rgba(0,93,182,0.15)] flex items-center justify-between hover:bg-primary-dim transition-all duration-300 relative overflow-hidden"
         >
           <div className="max-w-md relative z-10">
             <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center mb-6">
@@ -108,7 +109,7 @@ export function Dashboard() {
             <h2 className="text-3xl font-bold mb-3">eSelector Tool</h2>
             <p className="text-white/80 text-lg leading-relaxed">Our intelligent matching algorithm helps you find the exact medical component for specific surgical requirements.</p>
             <div className="mt-8 inline-flex items-center gap-4 bg-white text-primary px-6 py-3 rounded-lg font-bold text-sm hover:-translate-y-0.5 transition-transform">
-              Launch eSelector
+              <Link href="/eselector">Launch eSelector</Link>
               <Rocket className="w-4 h-4" />
             </div>
           </div>
@@ -119,7 +120,7 @@ export function Dashboard() {
             <img 
               src="https://picsum.photos/seed/medical-lab/400/400" 
               alt="Medical Technology" 
-              className="rounded-xl object-cover h-full w-full opacity-60 mix-blend-overlay"
+              className="rounded-xl object-cover h-full w-full opacity-90"
               referrerPolicy="no-referrer"
             />
           </div>
@@ -131,7 +132,7 @@ export function Dashboard() {
         <div className="lg:col-span-3">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xl font-bold tracking-tight">Recent Production Files</h3>
-            <button className="cursor-pointer text-primary font-bold text-sm hover:underline">View All</button>
+            <Link href="/files" className="cursor-pointer text-primary font-bold text-sm hover:underline">View All</Link>
           </div>
           <div className="space-y-4">
             <FileRow 
