@@ -1,32 +1,30 @@
-/**
- * KLS Product Handler
- * AESC Product Handler
- * This file contains the product handlers for the KLS and AESC products. 
- * Output: a product list with detailed properties.
+/*
+    * This file contains the handlers for the product search functionality in the frontend.
+    * Functions will takes in search terms, call to FastAPI 8000 port, and return the product information to be displayed on the frontend.
 */
 
+import { KLSProduct, AesculapProduct } from '@/types';
 
-const KLS_BASE_URL = "https://www.klsmartin.com/shop/en/products/?eID=catalog-search";
-const AESC_BASE_URL = "https://surgical-instruments.bbraun.com/api/occ/v2/bbraunb2b/materialSearch?viewId=en_01&salesAreaId=01_B2C_API_AESI&customerNumber=aesculap_client_customer&pageSize=50&pageNumber=0&materialTypes=ARTICLE&sortQuery=score-desc";
+const API_BASE_URL = 'http://localhost:8000/catalog';
 
-export async function getKLSProducts(searchQuery: string) {
+export const searchKLSProduct = async (searchTerm: string, limit: number): Promise<KLSProduct[]> => {
     try {
-        const response = await fetch(KLS_BASE_URL + `&text=${searchQuery}&lang=en-GB&pageUid=2992`);
-        const data = await response.json();
-        return data;
+        const response = await fetch(`${API_BASE_URL}/kls/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
+        if (!response.ok) return [];
+        return response.json();
     } catch (error) {
-        console.error("Error fetching KLS products:", error);
+        console.error('Error searching KLS product:', error);
         return [];
     }
-}
+};
 
-export async function getAESCProducts(searchQuery: string) {
+export const searchAesculapProduct = async (searchTerm: string, limit: number): Promise<AesculapProduct[]> => {
     try {
-        const response = await fetch(AESC_BASE_URL + `&text=${searchQuery}`);
-        const data = await response.json();
-        return data;
+        const response = await fetch(`${API_BASE_URL}/aes/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
+        if (!response.ok) return [];
+        return response.json();
     } catch (error) {
-        console.error("Error fetching AESC products:", error);
+        console.error('Error searching Aesculap product:', error);
         return [];
     }
-}
+};

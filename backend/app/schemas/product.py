@@ -1,13 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ProductBase(BaseModel):
     code: str
     eng_desc: str
     viet_desc: str
+    
+    model_config = ConfigDict(from_attributes=True) 
 
-    class Config:
-        orm_mode = True
 
 class KLSResponse(ProductBase):
     pass

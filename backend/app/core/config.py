@@ -1,17 +1,15 @@
-import os
-import dotenv
 from typing import List
-
-from pydantic import BaseSettings
-dotenv.load_dotenv()
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    database_url: str = os.getenv("DATABASE_URL")
+    # Pydantic automatically finds URL in .env file!
+    database_url: str 
     frontend_origins: List[str] = ["*"]
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        env_file_encoding="utf-8", 
+        extra="ignore"                                  # Ignores extra variables in the .env file so it doesn't crash
+    )
 
 settings = Settings()

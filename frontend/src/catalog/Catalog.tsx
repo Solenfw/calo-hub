@@ -1,17 +1,44 @@
-import React from 'react';
+"use client"
+
+import { useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Download, Copy, Info, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { KLSProduct, AesculapProduct } from '@/types';
+import { searchAesculapProduct, searchKLSProduct } from './productHandlers';  
 
-const catalogItems = [
-  { code: 'KL-10-244-12', name: 'Mayo-Hegar Needle Holder', desc: '150mm, Tungsten Carbide Inserts' },
-  { code: 'BB-77-901-00', name: 'Metzenbaum Scissors', desc: 'Curved, Standard Pattern, 14.5cm' },
-  { code: 'ST-04-112-99', name: 'Bone Rongeur Friedman', desc: 'Slightly Curved, 140mm' },
-  { code: 'KL-44-102-15', name: 'Adson Dressing Forceps', desc: 'Serrated, Straight, 120mm' },
-  { code: 'BB-12-555-08', name: 'Scalpel Handle No. 4', desc: 'Solid, Stainless Steel' },
-  { code: 'ST-99-001-22', name: 'Kelly Hemostatic Forceps', desc: 'Straight, 140mm' },
-];
 
 export function Catalog() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [catalogItems, setCatalogItems] = useState<KLSProduct[] | AesculapProduct[] | null>(null);
+  const [brand, setBrand] = useState('All Brands');
+  const [lang, setLang] = useState('ENG');
+  const [limit, setLimit] = useState(50);
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLimit(parseInt(e.target.value));
+  }
+
+  const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLang(e.target.value);
+  }
+
+  const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setBrand(e.target.value);
+  }
+
+  const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }
+
+  const handleSearch = async() => {
+    let products: React.SetStateAction<KLSProduct[] | AesculapProduct[] | null> = [];
+    if (brand === 'Martin' || brand === 'All Brands') {
+        products = await searchKLSProduct(searchTerm, limit);
+    } else if (brand === 'B-Braun' || brand === 'All Brands') {
+        products = await searchAesculapProduct(searchTerm, limit);
+    }
+    setCatalogItems(products);
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Page Header */}
@@ -27,6 +54,8 @@ export function Catalog() {
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors w-4 h-4" />
             <input 
+              value={searchTerm}
+              onChange={handleSearchTermChange}
               type="text" 
               className="w-full bg-surface-container-high border-none rounded-lg pl-12 pr-4 py-4 focus:ring-0 focus:border-b-2 focus:border-primary transition-all placeholder:text-outline-variant text-on-surface"
               placeholder="Enter product name or code (e.g. Scalpel, KN-400)"
@@ -36,16 +65,42 @@ export function Catalog() {
         <div className="w-full md:w-64">
           <label className="block text-[11px] font-bold uppercase tracking-widest text-outline-variant mb-3 ml-1">Brand Filter</label>
           <div className="relative">
-            <select className="w-full appearance-none bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-0 focus:border-b-2 focus:border-primary transition-all text-on-surface cursor-pointer">
+            <select 
+            value={brand}
+            onChange={handleBrandChange}
+            className="w-full appearance-none bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-0 focus:border-b-2 focus:border-primary transition-all text-on-surface cursor-pointer">
               <option>All Brands</option>
-              <option>KLS Martin</option>
+              <option>Martin</option>
               <option>B-Braun</option>
               <option>Stema</option>
             </select>
             <ChevronLeft className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-outline-variant w-4 h-4 rotate-270" />
           </div>
         </div>
-        <button className="cursor-pointer bg-primary text-on-primary px-8 py-4 rounded-lg font-bold flex items-center gap-2 hover:bg-primary-dim transition-all shadow-lg shadow-primary/10 active:scale-95">
+        <div className="w-full md:w-48">
+          <label className="block text-[11px] font-bold uppercase tracking-widest text-outline-variant mb-3 ml-1">Language</label>
+          <select 
+          value={lang}
+          onChange={handleLangChange}
+          className="w-full appearance-none bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-0 focus:border-b-2 focus:border-primary transition-all text-on-surface cursor-pointer">
+              <option>EN</option>
+              <option>VN</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="block text-[11px] font-bold uppercase tracking-widest text-outline-variant mb-3 ml-1">Limit</label>
+          <select 
+          value={limit}
+          onChange={handleLimitChange}
+          className="appearance-none bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-0 focus:border-b-2 focus:border-primary transition-all text-on-surface cursor-pointer">
+              <option>50</option>
+              <option>100</option>
+              <option>200</option>
+          </select>
+        </div>
+        <button 
+        onClick={handleSearch}
+        className="cursor-pointer bg-primary text-on-primary px-8 py-4 rounded-lg font-bold flex items-center gap-2 hover:bg-primary-dim transition-all shadow-lg shadow-primary/10 active:scale-95">
           <Filter className="w-4 h-4" />
           Search
         </button>
@@ -58,29 +113,55 @@ export function Catalog() {
           <div className="p-8 pb-0">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-manrope text-xl font-bold text-black">Catalog Entries</h3>
-              <span className="text-[12px] font-bold text-primary bg-primary-container px-3 py-1 rounded-full">142 Results Found</span>
+              <span className="text-[12px] font-bold text-primary bg-primary-container px-3 py-1 rounded-full">
+                { catalogItems ? `${catalogItems.length} items` : 'No results' }
+              </span>
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-surface-container-low">
-                  <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">The Code</th>
-                  <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">The Product's Description</th>
+                  <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Code</th>
+                  <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Description</th>
+                  {brand === 'B-Braun' && (
+                    <>
+                      <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Image</th>
+                      <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Alt Code</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y-0">
-                {catalogItems.map((item) => (
+                {catalogItems?.map((item) => (
                   <tr key={item.code} className="group hover:bg-surface-container-low transition-colors cursor-pointer">
                     <td className="px-8 py-6">
                       <span className="font-mono text-sm font-bold text-primary">{item.code}</span>
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
-                        <span className="font-medium text-on-surface">{item.name}</span>
-                        <span className="text-xs text-on-surface-variant mt-1">{item.desc}</span>
+                        <span className="font-medium text-on-surface">
+                          {lang === 'EN' ? item.eng_desc : item.viet_desc}
+                        </span>
                       </div>
                     </td>
+                    {brand === 'B-Braun' && (
+                      <>
+                        <td className="px-8 py-6">
+                          <img 
+                            src={(item as AesculapProduct).image}
+                            alt={item.eng_desc}
+                            className="w-16 h-16 object-cover rounded"
+                            referrerPolicy="no-referrer"
+                          />
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="font-mono text-sm font-bold text-primary">
+                            {(item as AesculapProduct).alternative_code}
+                          </span>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
