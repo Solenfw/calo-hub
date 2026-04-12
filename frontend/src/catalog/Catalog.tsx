@@ -57,7 +57,7 @@ export function Catalog() {
         <div className="lg:col-span-8 bg-surface-container-lowest rounded-xl overflow-hidden ambient-shadow">
           <div className="p-8 pb-0">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-manrope text-xl font-bold">Catalog Entries</h3>
+              <h3 className="font-manrope text-xl font-bold text-black">Catalog Entries</h3>
               <span className="text-[12px] font-bold text-primary bg-primary-container px-3 py-1 rounded-full">142 Results Found</span>
             </div>
           </div>
