@@ -1,53 +1,23 @@
 
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:16
     container_name: calo_hub_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: calo_hub
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
-    container_name: calo_hub_backend
-    ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/calo_hub
-      SECRET_KEY: your-secret-key-change-in-production
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - ./backend:/app
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    container_name: calo_hub_frontend
-    ports:
-      - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
-    depends_on:
-      - backend
-    volumes:
-      - ./frontend:/app/frontend
-    restart: unless-stopped
+    env_file:
+      - .env
 
 volumes:
   postgres_data:
