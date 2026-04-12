@@ -1,13 +1,12 @@
+import os
+import dotenv
 from typing import List
 
 from pydantic import BaseSettings
-
+dotenv.load_dotenv()
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/calo_hub"
-    secret_key: str
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
+    database_url: str = os.getenv("DATABASE_URL")
     frontend_origins: List[str] = ["*"]
 
     class Config:

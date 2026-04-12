@@ -2,17 +2,16 @@ from pydantic import BaseModel
 
 
 class ProductBase(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
+    code: str
+    eng_desc: str
+    viet_desc: str
 
     class Config:
         orm_mode = True
 
-
-class ProductCreate(ProductBase):
+class KLSResponse(ProductBase):
     pass
 
-
-class ProductResponse(ProductBase):
-    id: int
+class AesculapResponse(ProductBase):
+    image: str | None = None
+    alternative_code: str | None = None
