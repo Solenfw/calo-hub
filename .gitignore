@@ -83,3 +83,4 @@ pnpm-lock.yaml
 
 ## junks
 temp.*
+temp/
