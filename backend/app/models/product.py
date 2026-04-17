@@ -15,6 +15,7 @@ class AesculapProduct(Base):
     viet_desc = Column(String(1024), nullable=False)
     image = Column(String(50), nullable=True)
     alternative_code = Column(String(20), nullable=True)
+    brand = Column(String(20), nullable=False, index=True)
 
 
 class KLSProduct(Base):
@@ -24,3 +25,4 @@ class KLSProduct(Base):
     code = Column(String(20), nullable=False, index=True)
     eng_desc = Column(String(1024), nullable=False)
     viet_desc = Column(String(1024), nullable=False)
+    brand = Column(String(20), nullable=False, index=True)

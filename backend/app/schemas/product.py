@@ -5,6 +5,7 @@ class ProductBase(BaseModel):
     code: str
     eng_desc: str
     viet_desc: str
+    brand: str
     
     model_config = ConfigDict(from_attributes=True) 
 

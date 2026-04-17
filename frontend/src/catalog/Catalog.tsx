@@ -13,6 +13,8 @@ export function Catalog() {
   const [brand, setBrand] = useState('All Brands');
   const [lang, setLang] = useState('ENG');
   const [limit, setLimit] = useState(50);
+  const [chosenItem, setChosenItem] = useState<KLSProduct | AesculapProduct | null>(null);
+
   const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLimit(parseInt(e.target.value));
   }
@@ -134,7 +136,9 @@ export function Catalog() {
               </thead>
               <tbody className="divide-y-0">
                 {catalogItems?.map((item) => (
-                  <tr key={item.code} className="group hover:bg-surface-container-low transition-colors cursor-pointer">
+                  <tr 
+                  onClick={() => setChosenItem(item)}
+                  key={item.code} className="group hover:bg-surface-container-low transition-colors cursor-pointer">
                     <td className="px-8 py-6">
                       <span className="font-mono text-sm font-bold text-primary">{item.code}</span>
                     </td>
@@ -167,15 +171,6 @@ export function Catalog() {
               </tbody>
             </table>
           </div>
-          <div className="p-8 bg-surface-container-low/50 flex justify-center">
-            <nav className="flex items-center gap-2">
-              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><ChevronLeft className="w-4 h-4" /></button>
-              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
-              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors">2</button>
-              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors">3</button>
-              <button className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><ChevronRight className="w-4 h-4" /></button>
-            </nav>
-          </div>
         </div>
 
         {/* Detail Side Column */}
@@ -183,18 +178,17 @@ export function Catalog() {
           <div className="bg-surface-container-lowest p-8 rounded-xl ambient-shadow">
             <div className="aspect-square rounded-lg mb-6 overflow-hidden bg-surface-container-high">
               <img 
-                src="https://picsum.photos/seed/forceps/400/400" 
+                src= {chosenItem && 'image' in chosenItem ? (chosenItem as AesculapProduct).image : 'https://placehold.co/400x400?text=No+Image'}
                 alt="Surgical Instrument Detail" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
             </div>
             <div className="flex items-center gap-2 mb-3">
-              <span className="px-2 py-0.5 rounded bg-error-container/20 text-error font-bold text-[10px] uppercase">KLS Martin</span>
-              <span className="px-2 py-0.5 rounded bg-on-tertiary-container/10 text-on-tertiary-container font-bold text-[10px] uppercase">Premium Class</span>
+              <span className="px-2 py-0.5 rounded bg-error-container/20 text-error font-bold text-[10px] uppercase">{chosenItem?.brand}</span>
             </div>
-            <h4 className="font-manrope text-2xl font-bold mb-2">Needle Holder</h4>
-            <p className="text-on-surface-variant text-sm mb-6 leading-relaxed">Precision-engineered Mayo-Hegar pattern featuring gold-plated handles to signify tungsten carbide inserts for superior grip and durability.</p>
+            <h4 className="font-manrope text-3xl mb-2 font-bold text-black">{chosenItem?.code}</h4>
+            <p className="text-on-surface-variant text-sm mb-6 leading-relaxed">{lang === 'EN' ? chosenItem?.eng_desc : chosenItem?.viet_desc}</p>
             <div className="space-y-4">
               <DetailRow label="Material" value="Hardened Steel" />
               <DetailRow label="Origin" value="Germany" />
