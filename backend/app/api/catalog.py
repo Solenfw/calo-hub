@@ -5,8 +5,6 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.app.models.product import KLSProduct
-
 from .dependencies import get_db
 from ..crud.crud_catalog import search_aesculap_products, search_kls_products
 from ..schemas.product import KLSResponse, AesculapResponse

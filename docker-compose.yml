@@ -1,15 +1,11 @@
-
 services:
   db:
     image: postgres:16
     container_name: calo_hub_db
-    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -19,6 +15,27 @@ services:
       retries: 5
     env_file:
       - .env
+
+  # api:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: calo_hub_api
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: calo_hub_frontend
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - api
 
 volumes:
   postgres_data:

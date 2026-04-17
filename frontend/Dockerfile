@@ -1,30 +1,41 @@
-# Multi-stage build for Next.js frontend with Bun
-FROM oven/bun:latest AS builder
+FROM oven/bun:1 AS base
+WORKDIR /app
 
-WORKDIR /app/frontend
-
-# Copy dependency files first (layer caching)
-COPY frontend/package.json frontend/bun.lock* ./
+COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
-# Copy app code and build
-COPY frontend .
+# ==========================================
+FROM base AS dev
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY . .
+CMD ["bun", "run", "dev", "--hostname", "0.0.0.0"]
+
+# ==========================================
+FROM base AS builder
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY . .
 RUN bun run build
 
-# Runtime stage
-FROM oven/bun:latest
+# ==========================================
+FROM oven/bun:1-slim AS prod
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-WORKDIR /app/frontend
+# 1. Copy the public directory (for images, favicons, etc.)
+COPY --from=builder /app/public ./public
 
-# Copy only built artifacts and node_modules from builder
-COPY --from=builder /app/frontend/.next ./.next
-COPY --from=builder /app/frontend/public ./public
-COPY --from=builder /app/frontend/node_modules ./node_modules
-COPY --from=builder /app/frontend/package.json ./
+# 2. Copy the standalone directory (This contains the minimal required node_modules and server.js)
+COPY --from=builder --chown=bun:bun /app/.next/standalone ./
 
-# Create non-root user
-# RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-# USER appuser
+# 3. Copy the static build files (Standalone mode deliberately leaves these out, so we copy them manually)
+COPY --from=builder --chown=bun:bun /app/.next/static ./.next/static
 
+USER bun
 EXPOSE 3000
-CMD ["bun", "run", "start"]
+
+# HOST=0.0.0.0 ensures the standalone server accepts connections from outside the container
+ENV HOST=0.0.0.0 
+
+# 4. Instead of 'bun run start', we run the auto-generated standalone server
+CMD ["bun", "server.js"]

@@ -10,6 +10,7 @@ class Settings(BaseSettings):
         env_file=".env", 
         env_file_encoding="utf-8", 
         extra="ignore"                                  # Ignores extra variables in the .env file so it doesn't crash
+
     )
 
 settings = Settings()
