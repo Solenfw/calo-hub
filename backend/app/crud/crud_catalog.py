@@ -1,6 +1,6 @@
 import re
 
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 from ..models.product import KLSProduct, AesculapProduct
 
@@ -12,20 +12,24 @@ def search_kls_products(db: Session, search_term: str, limit: int = 50 ) -> list
         return db.query(KLSProduct).filter(KLSProduct.code == search_term).all()
     
     # Otherwise return a list of matching descriptions
-    return db.query(KLSProduct).filter(
+    terms = search_term.split()
+    conditions = [
         or_(
-            KLSProduct.viet_desc.ilike(f"%{search_term}%"),
-            KLSProduct.eng_desc.ilike(f"%{search_term}%")
-        )
-    ).limit(limit).all()
+            KLSProduct.viet_desc.ilike(f"%{term}%"),
+            KLSProduct.eng_desc.ilike(f"%{term}%")
+        ) for term in terms
+    ]
+    return db.query(KLSProduct).filter(and_(*conditions)).limit(limit).all()
     
 
 def search_aesculap_products(db: Session, search_term: str, limit: int = 50 ) -> list[AesculapProduct]:
-    return db.query(AesculapProduct).filter(
+    terms = search_term.split()
+    conditions = [
         or_(
-            AesculapProduct.code == search_term,
-            AesculapProduct.viet_desc.ilike(f"%{search_term}%"),
-            AesculapProduct.eng_desc.ilike(f"%{search_term}%")
-        )
-    ).limit(limit).all()
-    
+            AesculapProduct.code == term,
+            AesculapProduct.viet_desc.ilike(f"%{term}%"),
+            AesculapProduct.eng_desc.ilike(f"%{term}%")
+        ) for term in terms
+    ]
+    return db.query(AesculapProduct).filter(and_(*conditions)).limit(limit).all()
+
