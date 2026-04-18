@@ -2,7 +2,7 @@ import re
 
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
-from ..models.product import KLSProduct, AesculapProduct
+from ..models.product import KLSProduct, AesculapProduct, KLSProductImage
 
 
 
@@ -20,7 +20,11 @@ def search_kls_products(db: Session, search_term: str, limit: int = 50 ) -> list
         ) for term in terms
     ]
     return db.query(KLSProduct).filter(and_(*conditions)).limit(limit).all()
-    
+
+
+def search_martin_image (db: Session, code: str) -> KLSProductImage | None:
+    return db.query(KLSProductImage).filter(KLSProductImage.code == code).first()
+
 
 def search_aesculap_products(db: Session, search_term: str, limit: int = 50 ) -> list[AesculapProduct]:
     terms = search_term.split()
@@ -32,4 +36,3 @@ def search_aesculap_products(db: Session, search_term: str, limit: int = 50 ) ->
         ) for term in terms
     ]
     return db.query(AesculapProduct).filter(and_(*conditions)).limit(limit).all()
-

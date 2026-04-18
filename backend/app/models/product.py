@@ -19,3 +19,11 @@ class KLSProduct(Base):
     eng_desc = Column(String(1024), nullable=False)
     viet_desc = Column(String(1024), nullable=False)
     brand = Column(String(20), nullable=False, index=True)
+    
+
+class KLSProductImage(Base):
+    __tablename__ = "martin_images"
+    code = Column(String(20), primary_key=True, index=True)
+    img1_url = Column(String(50), nullable=False)
+    img2_url = Column(String(50), nullable=True)
+    img3_url = Column(String(50), nullable=True)
