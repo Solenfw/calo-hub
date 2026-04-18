@@ -14,3 +14,10 @@ export interface AesculapProduct {
     alternative_code: string;
     brand: string;
 }
+
+export interface KLSImageResponse {
+    code: string;
+    img1_url: string;
+    img2_url: string;
+    img3_url: string;
+}
