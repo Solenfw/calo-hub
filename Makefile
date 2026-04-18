@@ -3,7 +3,8 @@
 # Start dev environment with hot reload
 # Automatically merges docker-compose.yml AND docker-compose.override.yml
 dev:
-	docker compose up --build
+	docker compose up -d
+	uv run uvicorn backend.app.main:app --reload
 
 # Start prod environment in detached mode
 # Explicitly loads the base file, then applies the prod overrides
