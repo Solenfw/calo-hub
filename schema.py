@@ -51,7 +51,7 @@ def main():
                         sqlalchemy.text("""
                             INSERT INTO martin_images 
                             (code, image_url_1, image_url_2, image_url_3)
-                            VALUES (:code, :img1, :img2, :img3)
+                            VALUES (:code, :img1_url, :img2_url, :img3_url)
                             ON CONFLICT (code) DO UPDATE SET
                                 image_url_1 = EXCLUDED.image_url_1,
                                 image_url_2 = EXCLUDED.image_url_2,
@@ -59,9 +59,9 @@ def main():
                         """),
                         {
                             "code": row[0],
-                            "img1": get_val(row, 1),
-                            "img2": get_val(row, 2),
-                            "img3": get_val(row, 3),
+                            "img1_url": get_val(row, 1),
+                            "img2_url": get_val(row, 2),
+                            "img3_url": get_val(row, 3),
                         }
                     )
 
