@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     # Pydantic automatically finds URL in .env file!
     database_url: str 
     frontend_origins: List[str] = ["*"]
-
+    
     model_config = SettingsConfigDict(
         env_file=".env", 
         env_file_encoding="utf-8", 

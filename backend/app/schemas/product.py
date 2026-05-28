@@ -19,7 +19,7 @@ class AesculapResponse(ProductBase):
 
 class KLSImageResponse(BaseModel):
     code: str
-    img1_url: str
+    img1_url: str | None = None
     img2_url: str | None = None
     img3_url: str | None = None
     
