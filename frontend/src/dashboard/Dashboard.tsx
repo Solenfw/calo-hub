@@ -76,7 +76,7 @@ export function Dashboard() {
           </div>
         </motion.div>
 
-        {/* OCR Scanner Card */}
+        {/* Extraction Card */}
         <motion.div 
           whileHover={{ scale: 1.01 }}
           className="group bg-surface-container-lowest p-8 rounded-xl ambient-shadow flex flex-col justify-between hover:bg-surface-container-low transition-all duration-300 relative overflow-hidden"
@@ -85,11 +85,11 @@ export function Dashboard() {
             <div className="w-12 h-12 rounded-lg bg-secondary-container text-secondary flex items-center justify-center mb-6">
               <Scan className="w-6 h-6" />
             </div>
-            <h2 className="text-2xl font-bold text-on-surface mb-2">OCR Analysis</h2>
+            <h2 className="text-2xl font-bold text-on-surface mb-2">Extraction</h2>
             <p className="text-on-surface-variant">Extract text and data from physical medical reports with our high-precision optical recognition engine.</p>
           </div>
           <div className="mt-8 flex items-center gap-2 text-primary font-semibold text-sm group-hover:gap-4 transition-all">
-            <Link href="/ocr">Scan Document</Link>
+            <Link href="/extraction">Open Workbench</Link>
             <ArrowRight className="w-4 h-4" />
           </div>
           <div className="absolute top-0 right-0 p-4">

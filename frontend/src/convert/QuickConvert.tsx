@@ -85,7 +85,7 @@ export function QuickConvert() {
               <Info className="w-4 h-4" />
               Technical Note
             </h4>
-            <p className="text-xs leading-relaxed text-on-surface-variant">Target brand uses a proprietary surface blasting technique (SLA equivalent) which may differ from the source's acid-etched finish.</p>
+            <p className="text-xs leading-relaxed text-on-surface-variant">Target brand uses a proprietary surface blasting technique (SLA equivalent) which may differ from the source&apos;s acid-etched finish.</p>
           </div>
 
           <div className="bg-surface-container-high rounded-xl p-6">

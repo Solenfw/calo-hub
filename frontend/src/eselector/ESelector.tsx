@@ -1,6 +1,5 @@
 import React from 'react';
-import { CheckSquare, Search, Sliders, Heart, ShoppingCart, Download, FlaskConical as Science, Verified } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Search, Sliders, Heart, ShoppingCart, Download, FlaskConical as Science, Verified } from 'lucide-react';
 
 export function ESelector() {
   return (
@@ -144,7 +143,17 @@ function ToleranceOption({ label, checked = false }: { label: string, checked?: 
   );
 }
 
-function ProductCard({ code, name, match, length, material, thread, image }: any) {
+type ProductCardProps = {
+  code: string;
+  name: string;
+  match: string;
+  length: string;
+  material: string;
+  thread: string;
+  image: string;
+};
+
+function ProductCard({ code, name, match, length, material, thread, image }: ProductCardProps) {
   return (
     <div className="group bg-surface-container-lowest p-1 rounded-xl ambient-shadow hover:shadow-md transition-shadow duration-300">
       <div className="flex items-center gap-6 p-5">
