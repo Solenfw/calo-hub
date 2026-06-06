@@ -1,4 +1,4 @@
-.PHONY: dev prod down logs
+.PHONY: dev prod down logs test test-backend test-frontend
 
 # Start dev environment with hot reload
 # Automatically merges docker-compose.yml AND docker-compose.override.yml
@@ -20,3 +20,14 @@ down:
 # Tail api logs
 logs:
 	docker compose logs -f api
+
+# Run all tests
+test: test-backend test-frontend
+
+# Run backend unit tests
+test-backend:
+	UV_CACHE_DIR=.uv-cache uv run --project backend python -m unittest discover -s tests/backend -p 'test_*.py'
+
+# Run frontend unit tests
+test-frontend:
+	node --test tests/frontend/*.test.mjs
