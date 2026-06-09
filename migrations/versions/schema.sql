@@ -14,6 +14,7 @@ CREATE TABLE if NOT EXISTS kls_martin(
     code varchar(20) PRIMARY KEY,
     eng_desc varchar(255) NOT NULL,
     viet_desc varchar(255) NOT NULL,
+    alternative_code varchar(20),
     brand varchar(20) DEFAULT 'Martin'
 );
 
