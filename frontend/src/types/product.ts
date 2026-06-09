@@ -3,6 +3,7 @@ export interface KLSProduct {
     code: string;
     viet_desc: string;
     eng_desc: string;
+    alternative_code: string | null;
     brand: string;
 }
 
@@ -11,7 +12,7 @@ export interface AesculapProduct {
     viet_desc: string;
     eng_desc: string;
     image: string;
-    alternative_code: string;
+    alternative_code: string | null;
     brand: string;
 }
 

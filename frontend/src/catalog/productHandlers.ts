@@ -5,7 +5,7 @@
 
 import { KLSProduct, AesculapProduct, KLSImageResponse } from '@/types';
 
-const API_BASE_URL = 'http://localhost:8000/catalog';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/catalog';
 
 export const searchKLSProduct = async (searchTerm: string, limit: number): Promise<KLSProduct[]> => {
     try {

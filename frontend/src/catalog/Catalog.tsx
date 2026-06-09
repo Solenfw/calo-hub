@@ -197,9 +197,7 @@ export function Catalog() {
                 <tr className="bg-surface-container-low border-y border-outline-variant/20">
                   <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Code</th>
                   <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Description</th>
-                  {(brand === 'B-Braun' || brand === 'All Brands') && (
-                    <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Alt Code</th>
-                  )}
+                  <th className="px-8 py-4 text-[11px] font-extrabold uppercase tracking-widest text-outline">Alt Code</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
@@ -224,13 +222,11 @@ export function Catalog() {
                           </span>
                         </div>
                       </td>
-                      {(brand === 'B-Braun' || brand === 'All Brands') && (
-                        <td className="px-8 py-5">
-                          <span className="font-mono text-sm font-medium text-outline">
-                            {(item as AesculapProduct).alternative_code || '-'}
-                          </span>
-                        </td>
-                      )}
+                      <td className="px-8 py-5">
+                        <span className="font-mono text-sm font-medium text-outline">
+                          {item.alternative_code ?? 'N/A'}
+                        </span>
+                      </td>
                     </tr>
                   )
                 })}
@@ -247,8 +243,8 @@ export function Catalog() {
         </div>
 
         {/* Detail Side Column */}
-        <div className="lg:col-span-4 flex flex-col gap-8 self-start">
-          <div className="bg-surface-container-lowest p-8 rounded-xl ambient-shadow sticky top-0">
+        <div className="lg:col-span-4 flex flex-col gap-8 self-start lg:sticky lg:top-24 lg:z-10 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-1">
+          <div className="bg-surface-container-lowest p-8 rounded-xl ambient-shadow">
             
             {/* Image Box */}
             <div 
@@ -390,10 +386,10 @@ export function Catalog() {
       {isExpanded && chosenItem && (
         <div className="fixed inset-0 z-100 bg-black/95 backdrop-blur-sm flex items-center justify-center">
           
-          {/* Top-Left Close Button */}
+          {/* Top-Right Close Button */}
           <button 
             onClick={() => setIsExpanded(false)}
-            className="absolute top-6 left-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors cursor-pointer z-50 flex items-center justify-center"
+            className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors cursor-pointer z-50 flex items-center justify-center"
           >
             <X className="w-6 h-6" />
           </button>

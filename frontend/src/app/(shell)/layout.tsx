@@ -17,7 +17,7 @@ export default function ShellLayout({
       <TopNav />
       <LeftSideNav />
 
-      <main className="flex-1 md:ml-64 pt-24 px-8 lg:px-16 min-h-screen overflow-x-hidden pb-24 md:pb-12">
+      <main className="flex-1 md:ml-64 pt-24 px-8 lg:px-16 min-h-screen overflow-x-clip pb-24 md:pb-12">
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
