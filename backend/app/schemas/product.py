@@ -11,6 +11,7 @@ class ProductBase(BaseModel):
 
 
 class KLSResponse(ProductBase):
+    alternative_code: str | None = None
     pass
 
 class AesculapResponse(ProductBase):

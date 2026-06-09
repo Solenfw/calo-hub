@@ -18,6 +18,7 @@ class KLSProduct(Base):
     code = Column(String(20), primary_key=True, index=True)
     eng_desc = Column(String(1024), nullable=False)
     viet_desc = Column(String(1024), nullable=False)
+    alternative_code = Column(String(20), nullable=True)
     brand = Column(String(20), nullable=False, index=True)
     
 
