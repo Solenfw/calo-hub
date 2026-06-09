@@ -85,3 +85,8 @@ pnpm-lock.yaml
 ## junks
 temp.*
 temp/
+
+## auto generated
+.codex/
+.agents/
+.uv-cache/

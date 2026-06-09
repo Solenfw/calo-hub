@@ -28,14 +28,15 @@ def main():
 
                     connection.execute(
                         sqlalchemy.text("""
-                            INSERT INTO kls_martin (code, eng_desc, viet_desc)
-                            VALUES (:code, :eng, :viet)
+                            INSERT INTO kls_martin (code, eng_desc, viet_desc, alternative_code)
+                            VALUES (:code, :eng, :viet, :alternative)
                             ON CONFLICT (code) DO NOTHING
                         """),
                         {
                             "code": row[0],
                             "eng": row[1],
                             "viet": row[2],
+                            "alternative": row[3]
                         }
                     )
 
