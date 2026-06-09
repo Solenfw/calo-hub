@@ -28,15 +28,16 @@ def main():
 
                     connection.execute(
                         sqlalchemy.text("""
-                            INSERT INTO kls_martin (code, eng_desc, viet_desc, alternative_code)
-                            VALUES (:code, :eng, :viet, :alternative)
+                            INSERT INTO kls_martin (code, eng_desc, viet_desc, alternative_code, brand)
+                            VALUES (:code, :eng, :viet, :alternative, :brand)
                             ON CONFLICT (code) DO NOTHING
                         """),
                         {
                             "code": row[0],
                             "eng": row[1],
                             "viet": row[2],
-                            "alternative": row[3]
+                            "alternative": row[3],
+                            "brand": "Martin"
                         }
                     )
 
@@ -78,8 +79,8 @@ def main():
                     connection.execute(
                         sqlalchemy.text("""
                             INSERT INTO aesculap 
-                            (code, eng_desc, viet_desc, image, alternative_code)
-                            VALUES (:code, :eng, :viet, :img, :alt)
+                            (code, eng_desc, viet_desc, image, alternative_code, brand)
+                            VALUES (:code, :eng, :viet, :img, :alt, :brand)
                             ON CONFLICT (code) DO NOTHING
                         """),
                         {
@@ -88,6 +89,7 @@ def main():
                             "viet": row[2],
                             "img": get_val(row, 3),
                             "alt": get_val(row, 4),
+                            "brand": "B-Braun"
                         }
                     )
 

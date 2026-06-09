@@ -1,9 +1,10 @@
 .PHONY: dev prod down logs test test-backend test-frontend
 
-# Start dev environment with hot reload
-# Automatically merges docker-compose.yml AND docker-compose.override.yml
-dev:
+compose:
 	docker compose up -d
+
+# Start dev environment with hot reload
+dev:
 	uv run uvicorn backend.app.main:app --reload
 
 # Start prod environment in detached mode

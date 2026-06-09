@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, text
 from ..db.database import Base
 
     
@@ -8,7 +8,7 @@ class AesculapProduct(Base):
     code = Column(String(20), primary_key=True, index=True)
     eng_desc = Column(String(1024), nullable=False)
     viet_desc = Column(String(1024), nullable=False)
-    image = Column(String(50), nullable=True)
+    image = Column(String(2000), nullable=True)
     alternative_code = Column(String(20), nullable=True)
     brand = Column(String(20), nullable=False, index=True)
 
@@ -25,6 +25,6 @@ class KLSProduct(Base):
 class KLSProductImage(Base):
     __tablename__ = "martin_images"
     code = Column(String(20), primary_key=True, index=True)
-    img1_url = Column(String(50), nullable=False)
-    img2_url = Column(String(50), nullable=True)
-    img3_url = Column(String(50), nullable=True)
+    img1_url = Column(String(2000), nullable=False)
+    img2_url = Column(String(2000), nullable=True)
+    img3_url = Column(String(2000), nullable=True)
