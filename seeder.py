@@ -52,7 +52,7 @@ def main():
                     connection.execute(
                         sqlalchemy.text("""
                             INSERT INTO martin_images 
-                            (code, img1_url, img2_url, img3_url)
+                            (code,img1_url,img2_url,img3_url)
                             VALUES (:code, :img1_url, :img2_url, :img3_url)
                             ON CONFLICT (code) DO UPDATE SET
                                 img1_url = EXCLUDED.img1_url,
