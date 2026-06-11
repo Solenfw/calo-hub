@@ -28,7 +28,7 @@ def main():
 
                     connection.execute(
                         sqlalchemy.text("""
-                            INSERT INTO kls_martin (code, eng_desc, viet_desc, alternative_code, brand)
+                            INSERT INTO kls_martin (code, eng, viet, alternative, brand)
                             VALUES (:code, :eng, :viet, :alternative, :brand)
                             ON CONFLICT (code) DO NOTHING
                         """),
@@ -79,7 +79,7 @@ def main():
                     connection.execute(
                         sqlalchemy.text("""
                             INSERT INTO aesculap 
-                            (code, eng_desc, viet_desc, image, alternative_code, brand)
+                            (code, eng, viet, image, alternative, brand)
                             VALUES (:code, :eng, :viet, :img, :alt, :brand)
                             ON CONFLICT (code) DO NOTHING
                         """),

@@ -6,19 +6,19 @@ from ..db.database import Base
 class AesculapProduct(Base):
     __tablename__ = "aesculap"
     code = Column(String(20), primary_key=True, index=True)
-    eng_desc = Column(String(1024), nullable=False)
-    viet_desc = Column(String(1024), nullable=False)
+    eng = Column(String(1024), nullable=False)
+    viet = Column(String(1024), nullable=False)
     image = Column(String(2000), nullable=True)
-    alternative_code = Column(String(20), nullable=True)
+    alternative = Column(String(20), nullable=True)
     brand = Column(String(20), nullable=False, index=True)
 
 
 class KLSProduct(Base):
     __tablename__ = "kls_martin"
     code = Column(String(20), primary_key=True, index=True)
-    eng_desc = Column(String(1024), nullable=False)
-    viet_desc = Column(String(1024), nullable=False)
-    alternative_code = Column(String(20), nullable=True)
+    eng = Column(String(1024), nullable=False)
+    viet = Column(String(1024), nullable=False)
+    alternative = Column(String(20), nullable=True)
     brand = Column(String(20), nullable=False, index=True)
     
 
