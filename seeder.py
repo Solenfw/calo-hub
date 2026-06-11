@@ -37,7 +37,7 @@ def main():
                             "eng": row[1],
                             "viet": row[2],
                             "alternative": row[3],
-                            "brand": "Martin"
+                            "brand": get_val(row, 4) or "Martin"
                         }
                     )
 
@@ -89,7 +89,7 @@ def main():
                             "viet": row[2],
                             "img": get_val(row, 3),
                             "alt": get_val(row, 4),
-                            "brand": "B-Braun"
+                            "brand": get_val(row, 5) or "B-Braun"
                         }
                     )
 
