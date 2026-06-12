@@ -1,0 +1,18 @@
+services:
+  db:
+    restart: always
+    # Intentionally omitted ports: 5432:5432 to protect the DB from the public internet
+
+  api:
+    build:
+      target: prod
+    restart: always
+    ports:
+      - "8000:8000" # Your reverse proxy (like Nginx/Caddy) will route traffic here
+
+  frontend:
+    build:
+      target: prod
+    restart: always
+    ports:
+      - "3000:3000"
