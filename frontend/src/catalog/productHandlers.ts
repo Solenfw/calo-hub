@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/c
 
 export const searchKLSProduct = async (searchTerm: string, limit: number): Promise<KLSProduct[]> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/kls/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
+        const response = await fetch(`${API_BASE_URL}/catalog/kls/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
         if (!response.ok) return [];
         return response.json();
     } catch (error) {
@@ -20,7 +20,7 @@ export const searchKLSProduct = async (searchTerm: string, limit: number): Promi
 
 export const getKLSImages = async (code: string): Promise<KLSImageResponse | null> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/kls/images/${encodeURIComponent(code)}`);
+        const response = await fetch(`${API_BASE_URL}/catalog/kls/images/${encodeURIComponent(code)}`);
         if (!response.ok) return null;
         const data = await response.json();
         return data as KLSImageResponse; // Returns the full object with img1_url, img2_url, img3_url
@@ -32,7 +32,7 @@ export const getKLSImages = async (code: string): Promise<KLSImageResponse | nul
 
 export const searchAesculapProduct = async (searchTerm: string, limit: number): Promise<AesculapProduct[]> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/aes/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
+        const response = await fetch(`${API_BASE_URL}/catalog/aes/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
         if (!response.ok) return [];
         return response.json();
     } catch (error) {
