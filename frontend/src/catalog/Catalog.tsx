@@ -218,13 +218,13 @@ export function Catalog() {
                       <td className="px-8 py-5">
                         <div className="flex flex-col">
                           <span className="font-medium text-on-surface">
-                            {lang === 'EN' ? item.eng_desc : item.viet_desc}
+                            {lang === 'EN' ? item.eng : item.viet}
                           </span>
                         </div>
                       </td>
                       <td className="px-8 py-5">
                         <span className="font-mono text-sm font-medium text-outline">
-                          {item.alternative_code ?? 'N/A'}
+                          {item.alternative ?? 'N/A'}
                         </span>
                       </td>
                     </tr>
@@ -332,7 +332,7 @@ export function Catalog() {
                     {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                   </button>
                   <p className="text-on-surface-variant text-sm mb-6 leading-relaxed line-clamp-3">
-                    {lang === 'EN' ? chosenItem.eng_desc : chosenItem.viet_desc}
+                    {lang === 'EN' ? chosenItem.eng : chosenItem.viet}
                   </p>
                   <div className="space-y-4">
                     <DetailRow label="Material" value="Hardened Steel" />

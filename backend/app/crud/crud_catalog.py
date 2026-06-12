@@ -15,8 +15,8 @@ def search_kls_products(db: Session, search_term: str, limit: int = 50 ) -> list
     terms = search_term.split()
     conditions = [
         or_(
-            KLSProduct.viet_desc.ilike(f"%{term}%"),
-            KLSProduct.eng_desc.ilike(f"%{term}%")
+            KLSProduct.viet.ilike(f"%{term}%"),
+            KLSProduct.eng.ilike(f"%{term}%")
         ) for term in terms
     ]
     return db.query(KLSProduct).filter(and_(*conditions)).limit(limit).all()
@@ -31,8 +31,8 @@ def search_aesculap_products(db: Session, search_term: str, limit: int = 50 ) ->
     conditions = [
         or_(
             AesculapProduct.code == term,
-            AesculapProduct.viet_desc.ilike(f"%{term}%"),
-            AesculapProduct.eng_desc.ilike(f"%{term}%")
+            AesculapProduct.viet.ilike(f"%{term}%"),
+            AesculapProduct.eng.ilike(f"%{term}%")
         ) for term in terms
     ]
     return db.query(AesculapProduct).filter(and_(*conditions)).limit(limit).all()

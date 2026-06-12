@@ -1,18 +1,18 @@
 
 export interface KLSProduct {
     code: string;
-    viet_desc: string;
-    eng_desc: string;
-    alternative_code: string | null;
+    viet: string;
+    eng: string;
+    alternative: string | null;
     brand: string;
 }
 
 export interface AesculapProduct {
     code: string;
-    viet_desc: string;
-    eng_desc: string;
+    viet: string;
+    eng: string;
     image: string;
-    alternative_code: string | null;
+    alternative: string | null;
     brand: string;
 }
 

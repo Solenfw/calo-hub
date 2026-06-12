@@ -6,8 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 """
 CSV parsing service for data ingestion. Expects CSVs with the following columns:
-    [code, eng_desc, viet_desc, image, compatible_kls_code] (Aesculap).
-    [code, eng_desc, viet_desc] (KLS Martin).
+    [code, eng, viet, image, compatible_kls_code] (Aesculap).
+    [code, eng, viet] (KLS Martin).
 """
 def parse_csv(payload: str) -> list[dict[str, str | float]]:
     reader = csv.DictReader(StringIO(payload))

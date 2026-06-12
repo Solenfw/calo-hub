@@ -3,20 +3,20 @@ from pydantic import BaseModel, ConfigDict
 
 class ProductBase(BaseModel):
     code: str
-    eng_desc: str
-    viet_desc: str
+    eng: str
+    viet: str
     brand: str
     
     model_config = ConfigDict(from_attributes=True) 
 
 
 class KLSResponse(ProductBase):
-    alternative_code: str | None = None
+    alternative: str | None = None
     pass
 
 class AesculapResponse(ProductBase):
     image: str | None = None
-    alternative_code: str | None = None
+    alternative: str | None = None
 
 class KLSImageResponse(BaseModel):
     code: str

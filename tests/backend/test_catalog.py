@@ -56,12 +56,12 @@ class CatalogTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         self.db.close()
 
-    def add_kls(self, code: str, eng_desc: str, viet_desc: str = "mo ta") -> None:
+    def add_kls(self, code: str, eng: str, viet: str = "mo ta") -> None:
         self.db.add(
             KLSProduct(
                 code=code,
-                eng_desc=eng_desc,
-                viet_desc=viet_desc,
+                eng=eng,
+                viet=viet,
                 brand="Martin",
             )
         )
@@ -70,17 +70,17 @@ class CatalogTestCase(unittest.TestCase):
     def add_aesculap(
         self,
         code: str,
-        eng_desc: str,
-        viet_desc: str = "mo ta",
-        alternative_code: str | None = None,
+        eng: str,
+        viet: str = "mo ta",
+        alternative: str | None = None,
     ) -> None:
         self.db.add(
             AesculapProduct(
                 code=code,
-                eng_desc=eng_desc,
-                viet_desc=viet_desc,
+                eng=eng,
+                viet=viet,
                 image=f"{code}.jpg",
-                alternative_code=alternative_code,
+                alternative=alternative,
                 brand="B-Braun",
             )
         )
@@ -114,7 +114,7 @@ class KLSCatalogSearchTests(CatalogTestCase):
 
 class AesculapCatalogSearchTests(CatalogTestCase):
     def test_aesculap_search_matches_code_or_description_terms(self) -> None:
-        self.add_aesculap("AB123", "Bone holding forceps", alternative_code="ALT-1")
+        self.add_aesculap("AB123", "Bone holding forceps", alternative="ALT-1")
         self.add_aesculap("CD456", "Needle holder")
 
         code_results = search_aesculap_products(self.db, "AB123")
@@ -124,7 +124,7 @@ class AesculapCatalogSearchTests(CatalogTestCase):
         self.assertEqual(["CD456"], [product.code for product in description_results])
 
     def test_aesculap_api_serializes_optional_product_fields(self) -> None:
-        self.add_aesculap("AB123", "Bone holding forceps", alternative_code="ALT-1")
+        self.add_aesculap("AB123", "Bone holding forceps", alternative="ALT-1")
 
         response = route_search_aesculap(q="bone", db=self.db)
         serialized = [AesculapResponse.model_validate(item).model_dump() for item in response]
@@ -133,11 +133,11 @@ class AesculapCatalogSearchTests(CatalogTestCase):
             [
                 {
                     "code": "AB123",
-                    "eng_desc": "Bone holding forceps",
-                    "viet_desc": "mo ta",
+                    "eng": "Bone holding forceps",
+                    "viet": "mo ta",
                     "brand": "B-Braun",
                     "image": "AB123.jpg",
-                    "alternative_code": "ALT-1",
+                    "alternative": "ALT-1",
                 }
             ],
             serialized,

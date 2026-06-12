@@ -59,8 +59,8 @@ describe('catalog product handlers', () => {
     const payload = [
       {
         code: '12-345-67-89',
-        eng_desc: 'Straight forceps',
-        viet_desc: 'Mo ta',
+        eng: 'Straight forceps',
+        viet: 'Mo ta',
         brand: 'Martin',
       },
     ];
@@ -86,10 +86,10 @@ describe('catalog product handlers', () => {
     const payload = [
       {
         code: 'AB123',
-        eng_desc: 'Bone lever',
-        viet_desc: 'Mo ta',
+        eng: 'Bone lever',
+        viet: 'Mo ta',
         image: 'AB123.jpg',
-        alternative_code: 'ALT-123',
+        alternative: 'ALT-123',
         brand: 'B-Braun',
       },
     ];
