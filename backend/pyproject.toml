@@ -2,7 +2,7 @@
 name = "calo-hub-backend"
 version = "0.1.0"
 description = "Backend API for Calo Hub"
-authors = [{ name = "Calo Hub", email = "dev@calohub.example" }]
+authors = [{ name = "Calo Hub", email = "nhuyhoang1012005@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.11"
 
@@ -19,6 +19,7 @@ dependencies = [
     "pydantic-settings>=2.13.1",
     "psycopg2-binary>=2.9.11",
     "alembic>=1.18.4",
+    "openpyxl>=3.1.5",
 ]
 
 [build-system]
