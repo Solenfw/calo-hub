@@ -4148,7 +4148,7 @@ code,eng,viet,alternative,brand
 24-466-03-07,"Pediatric vascular clamp, Atrauma, acc. to Cooley, angled, length 14.5 cm","Kẹp không chấn thương Cooley, cong kép, dài 14.5 cm",FB742R,Martin
 24-466-04-07,"Pediatric vascular clamp, Atrauma, acc. to Cooley, double curved, length 14 cm","Kẹp không chấn thương Cooley, cong kép, dài 14 cm",MB613R,Martin
 24-466-05-07,"Pediatric vascular clamp, Atrauma, acc. to Cooley, spoon shape, length 14.5 cm","Kẹp không chấn thương hình thìa Cooley, dài 14.5 cm",FB743R,Martin
-24-466-06-07,"Pediatric vascular clamp, Atrauma, acc. to Cooley, curved, length 12.5 cm","Kẹp không chấn thương Cooley, cong, dài 14.5 cm",FB703R,Martin
+24-466-06-07,"Pediatric vascular clamp, Atrauma, acc. to Cooley, curved, length 12.5 cm","Kẹp không chấn thương Cooley, cong, dài 12.5 cm",FB703R,Martin
 24-467-21-07,"Iliac clamp, Atrauma, acc. to Cooley, angled, length 22 cm","Kẹp động mạch cháu không chấn thương Cooley, gập góc, dài 22 cm",FB766R,Martin
 24-468-17-07,"Multi purpose vascular clamp, Atrauma, acc. to Cooley, straight, length 17 cm","Kẹp không chấn thương Cooley, thẳng, dài 17 cm",FB712R,Martin
 24-469-18-07,"Multi purpose vascular clamp, Atrauma, acc. to Cooley-Parry, double curved, length 18 cm","Kẹp mạch máu giảm thiếu chấn thương Cooley-Parry, dài 18 cm",FB712R,Martin
@@ -5396,7 +5396,7 @@ code,eng,viet,alternative,brand
 30-581-28-07,"Rectal anastomosis clamp, Atrauma, acc. to Hayes, angled, length 28 cm","Kẹp trực tràng không chấn thương Hayes, gập góc, dài 28 cm",EA191R,Martin
 30-583-23-07,"Rectal anastomosis clamp, Atrauma, acc. to Veidenheimer, angled, length 24 cm","Kẹp trực tràng không chấn thương Veidenheimer, gập góc 90 độ, ngàm có răng DeBakey, dài 25 cm",EA191R,Martin
 30-585-24-07,"Rectal anastomosis clamp, Atrauma, acc. to Fehland, angled, length 24 cm","Kẹp trực tràng không chấn thương Fehland, gập góc 90 độ, ngàm có răng DeBakey, dài 24 cm",EA191R,Martin
-30-587-30-07,"Rectal anastomosis clamp, Atrauma, acc. to Resano, angled, length 29 cm","Kẹp trực tràng không chấn thương Resano, dài 28 cm",EA360R,Martin
+30-587-30-07,"Rectal anastomosis clamp, Atrauma, acc. to Resano, angled, length 29 cm","Kẹp trực tràng không chấn thương Resano, dài 29 cm",EA360R,Martin
 30-610-21-07,"Rectal speculum, acc. to Czerny, 105 x 23 mm, length 22.5 cm","Banh trực tràng Czerny, lưỡi banh 105 x 23-28 mm , dài 22.5 cm",EA800R,Martin
 30-613-15-01,"Rectal speculum, acc. to Sims, 70 x 15 mm, length 15.5 cm","Banh trực tràng Sims, lưỡi banh 70x15 mm , dài 15.5 cm",EA820R,Martin
 30-615-15-01,"Rectal speculum, acc. to Sims, fenestrated, 70 x 15 mm, length 15.5 cm","Banh trực tràng Sims, lưỡi banh 70x15 mm , dài 15.5 cm",EA821R,Martin
@@ -9583,7 +9583,6 @@ code,eng,viet,alternative,brand
 95-101-12-99,Rep.-Dental forceps,SPare-Part,BT012R,Martin
 95-101-50-99,Rep.-per unit,SPare-Part,BT012R,Martin
 95-830-00-99,Repair charges general,SPare-Part,BT012R,Martin
-13-116-65-07,"Bulldog clamp, acc. to Johns-Hopkins, curved, length 65 mm",None,BH014R,Martin
 15-792-00-01,"SPREADER, LOW-PROFILE, 6 CM                                                                                                                                 ",None,BH014R,Martin
 15-792-01-01,"Blade for spreader, width 10 mm, length 18 mm",None,BH014R,Martin
 15-793-00-01,"SPREADER, LOW-PROFILE, 3X3 T., 9.0 CM                                                                                                                       ",None,BH014R,Martin
