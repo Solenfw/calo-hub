@@ -5,7 +5,7 @@ compose:
 
 # Start dev environment with hot reload
 dev:
-	uv run uvicorn backend.app.main:app --reload
+	uv run uvicorn server.app.main:app --reload
 
 # Start prod environment in detached mode
 # Explicitly loads the base file, then applies the prod overrides
