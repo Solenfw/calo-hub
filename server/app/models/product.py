@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, text
+from sqlalchemy import Column, Integer, String, text
 from ..db.database import Base
 
     
@@ -28,3 +28,12 @@ class KLSProductImage(Base):
     img1_url = Column(String(2000), nullable=False)
     img2_url = Column(String(2000), nullable=True)
     img3_url = Column(String(2000), nullable=True)
+
+
+class KLSProductForReport(Base):
+    __tablename__ = "klsmartin_report"
+    no = Column(Integer, primary_key=True, index=True)
+    code = Column(String(20), nullable=False)
+    description = Column(String(1024), nullable=False)
+    img_url = Column(String(2000), nullable=True)
+    quantity = Column(Integer, nullable=False)

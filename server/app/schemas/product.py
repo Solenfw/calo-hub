@@ -25,3 +25,13 @@ class KLSImageResponse(BaseModel):
     img3_url: str | None = None
     
     model_config = ConfigDict(from_attributes=True)
+
+
+class KLSReportResponse(BaseModel):
+    no: int
+    code: str
+    description: str
+    img_url: str | None = None
+    quantity: int
+    
+    model_config = ConfigDict(from_attributes=True)

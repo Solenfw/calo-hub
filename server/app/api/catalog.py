@@ -1,5 +1,4 @@
 from operator import or_
-import re
 from typing import List
 
 from fastapi import APIRouter, Depends
