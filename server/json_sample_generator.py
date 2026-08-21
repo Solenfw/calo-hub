@@ -18,8 +18,8 @@ with open('data/martin_images.csv', 'r', encoding='utf-8') as f:
         images[code] = image 
 
 results = []
-for i in range(1, 11):
-    index = random.randint(0, len(klsmartin_data) - 1)  
+for i in range(1, 21):
+    index = random.randint(0, 5000 - 1)  
     code = klsmartin_data[index][0]
     results.append({
         "No.": i,
