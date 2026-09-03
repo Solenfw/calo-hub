@@ -25,12 +25,14 @@ func NewCatalogHandler(repo *repository.CatalogRepository) *CatalogHandler {
 
 func (h *CatalogHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	search_term := chi.URLParam(r, "code")
-
-	re, err := regexp.Compile(`\d{2}-\d{3}-\d{2}-\d{2}`)
+	pattern, err := regexp.Compile(`^\d{2}-\d{3}-\d{2}-\d{2}$|^[A-Z]{2}(?:-[A-Z])?\d{3,6}[A-Z]{0,2}$`) 
+	
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
-	} else if re.MatchString(search_term) {
+	}
+	
+	if pattern.MatchString(search_term) {
 		product, err := h.repo.GetProductByCode(r.Context(), search_term)
 		if err != nil {
 			http.Error(w, "not found", http.StatusNotFound)
@@ -45,26 +47,26 @@ func (h *CatalogHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 			Brand: product.Brand,
 		}
 		json.NewEncoder(w).Encode(resp)
-	} else {
-		terms := regexp.MustCompile(`\s+`).Split(search_term, -1)
-		products, err := h.repo.GetProductsByTerms(r.Context(), terms)
-		if err != nil {
-			http.Error(w, "not found", http.StatusNotFound)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		var resp []dto.ProductResponse
-		for _, product := range products {
-			resp = append(resp, dto.ProductResponse{
-				Code: product.Code,
-				Eng: product.Eng,
-				Viet: product.Viet,
-				Alternative: product.Alternative,
-				Brand: product.Brand,
-			})
-		}
-		json.NewEncoder(w).Encode(resp)
 	}
+
+	terms := regexp.MustCompile(`\s+`).Split(search_term, -1)
+	products, err := h.repo.GetProductsByTerms(r.Context(), terms)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	var resp []dto.ProductResponse
+	for _, product := range products {
+		resp = append(resp, dto.ProductResponse{
+			Code: product.Code,
+			Eng: product.Eng,
+			Viet: product.Viet,
+			Alternative: product.Alternative,
+			Brand: product.Brand,
+		})
+	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func (h *CatalogHandler) GetImages(w http.ResponseWriter, r *http.Request) {

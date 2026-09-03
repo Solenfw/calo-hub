@@ -25,6 +25,8 @@ func main() {
 
 	r.Get("/catalog/products/{code}", handler.GetProducts)
 	r.Get("/catalog/images/{code}", handler.GetImages)
+	r.Get("/catalog/report/martin/{request_id}", handler.GetMartinReportList)
+	r.Get("/catalog/report/martin/all/{request_id}", handler.GetMartinReportProducts)
 
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", r); err != nil {
