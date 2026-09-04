@@ -1,132 +1,201 @@
+// Package handler contains HTTP handlers for the API.
 package handler
 
-// endpoints for /catalog
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/solenfw/calo-hub/internal/repository"
 	"github.com/solenfw/calo-hub/internal/dto"
+	"github.com/solenfw/calo-hub/internal/models"
+	"github.com/solenfw/calo-hub/internal/repository"
 )
 
+var productCodePattern = regexp.MustCompile(`^\d{2}-\d{3}-\d{2}-\d{2}$|^[A-Z]{2}(?:-[A-Z])?\d{3,6}[A-Z]{0,2}$`)
 
+// CatalogHandler serves catalog product, image, and Martin report endpoints.
 type CatalogHandler struct {
 	repo *repository.CatalogRepository
 }
 
+// NewCatalogHandler wires a catalog repository into its HTTP handler.
 func NewCatalogHandler(repo *repository.CatalogRepository) *CatalogHandler {
 	return &CatalogHandler{
 		repo: repo,
 	}
 }
 
-func (h *CatalogHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	search_term := chi.URLParam(r, "code")
-	pattern, err := regexp.Compile(`^\d{2}-\d{3}-\d{2}-\d{2}$|^[A-Z]{2}(?:-[A-Z])?\d{3,6}[A-Z]{0,2}$`) 
-	
-	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+// GetProductByCode returns a single product for an exact catalog code.
+func (h *CatalogHandler) GetProductByCode(w http.ResponseWriter, r *http.Request) {
+	code := strings.TrimSpace(chi.URLParam(r, "code"))
+	if code == "" {
+		writeError(w, http.StatusBadRequest, "product code is required")
 		return
-	}
-	
-	if pattern.MatchString(search_term) {
-		product, err := h.repo.GetProductByCode(r.Context(), search_term)
-		if err != nil {
-			http.Error(w, "not found", http.StatusNotFound)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		resp := dto.ProductResponse {
-			Code: product.Code,
-			Eng: product.Eng,
-			Viet: product.Viet,
-			Alternative: product.Alternative,
-			Brand: product.Brand,
-		}
-		json.NewEncoder(w).Encode(resp)
 	}
 
-	terms := regexp.MustCompile(`\s+`).Split(search_term, -1)
-	products, err := h.repo.GetProductsByTerms(r.Context(), terms)
-	if err != nil {
-		http.Error(w, "not found", http.StatusNotFound)
+	if !productCodePattern.MatchString(code) {
+		writeError(w, http.StatusBadRequest, "invalid product code")
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	var resp []dto.ProductResponse
-	for _, product := range products {
-		resp = append(resp, dto.ProductResponse{
-			Code: product.Code,
-			Eng: product.Eng,
-			Viet: product.Viet,
-			Alternative: product.Alternative,
-			Brand: product.Brand,
-		})
+
+	product, err := h.repo.GetProductByCode(r.Context(), code)
+	if err != nil {
+		writeRepositoryError(w, err)
+		return
 	}
-	json.NewEncoder(w).Encode(resp)
+
+	writeJSON(w, http.StatusOK, toProductResponse(product))
 }
 
+// SearchProducts returns products that match all query terms in the product text.
+func (h *CatalogHandler) SearchProducts(w http.ResponseWriter, r *http.Request) {
+	searchTerm := strings.TrimSpace(r.URL.Query().Get("q"))
+	if searchTerm == "" {
+		searchTerm = strings.TrimSpace(r.URL.Query().Get("search"))
+	}
+
+	terms := strings.Fields(searchTerm)
+	if len(terms) == 0 {
+		writeError(w, http.StatusBadRequest, "search query is required")
+		return
+	}
+
+	products, err := h.repo.GetProductsByTerms(r.Context(), terms)
+	if err != nil {
+		writeRepositoryError(w, err)
+		return
+	}
+
+	resp := make([]dto.ProductResponse, 0, len(products))
+	for _, product := range products {
+		resp = append(resp, toProductResponse(product))
+	}
+
+	writeJSON(w, http.StatusOK, resp)
+}
+
+// GetImages returns all stored image URLs for a product code.
 func (h *CatalogHandler) GetImages(w http.ResponseWriter, r *http.Request) {
-	code := chi.URLParam(r, "code")
+	code := strings.TrimSpace(chi.URLParam(r, "code"))
+	if code == "" {
+		writeError(w, http.StatusBadRequest, "product code is required")
+		return
+	}
 
 	images, err := h.repo.GetImagesByCode(r.Context(), code)
 	if err != nil {
-		http.Error(w, "not found", http.StatusNotFound)
+		writeRepositoryError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	resp := dto.ImageResponse {
-		Code: images.Code,
+
+	resp := dto.ImageResponse{
+		Code:   images.Code,
 		Images: images.Images,
 	}
-	json.NewEncoder(w).Encode(resp)
+	writeJSON(w, http.StatusOK, resp)
 }
 
-func (h *CatalogHandler) GetMartinReportList(w http.ResponseWriter, r *http.Request) {
-	reports, err := h.repo.GetMartinReportList(r.Context())
+// ListMartinReports returns the available Martin report lists.
+func (h *CatalogHandler) ListMartinReports(w http.ResponseWriter, r *http.Request) {
+	reports, err := h.repo.GetAllMartinReportLists(r.Context())
 	if err != nil {
-		http.Error(w, "not found", http.StatusNotFound)
+		writeRepositoryError(w, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	var resp []dto.MartinReportListResponse
+	resp := make([]dto.MartinReportListResponse, 0, len(reports))
 	for _, report := range reports {
 		resp = append(resp, dto.MartinReportListResponse{
 			Name: report.Name,
 		})
 	}
-	json.NewEncoder(w).Encode(resp)
+
+	writeJSON(w, http.StatusOK, resp)
 }
 
+// GetMartinReportByName returns metadata for a single Martin report list.
+func (h *CatalogHandler) GetMartinReportByName(w http.ResponseWriter, r *http.Request) {
+	reportName := strings.TrimSpace(chi.URLParam(r, "name"))
+	if reportName == "" {
+		writeError(w, http.StatusBadRequest, "report name is required")
+		return
+	}
+
+	report, err := h.repo.GetMartinReportListByName(r.Context(), reportName)
+	if err != nil {
+		writeRepositoryError(w, err)
+		return
+	}
+
+	resp := dto.MartinReportListResponse{
+		Name: report.Name,
+	}
+	writeJSON(w, http.StatusOK, resp)
+}
+
+// GetMartinReportProducts returns all products attached to a Martin report.
 func (h *CatalogHandler) GetMartinReportProducts(w http.ResponseWriter, r *http.Request) {
-	reportID := chi.URLParam(r, "report_id")
+	reportID := strings.TrimSpace(chi.URLParam(r, "report_id"))
 
 	reportIDInt, err := strconv.Atoi(reportID)
-	if err != nil {
-		http.Error(w, "invalid report ID", http.StatusBadRequest)
+	if err != nil || reportIDInt <= 0 {
+		writeError(w, http.StatusBadRequest, "invalid report ID")
 		return
 	}
 
-	products, err := h.repo.GetMartinReportProductsByID(r.Context(), reportIDInt)
+	products, err := h.repo.GetMartinReportProductsByReportID(r.Context(), reportIDInt)
 	if err != nil {
-		http.Error(w, "not found", http.StatusNotFound)
+		writeRepositoryError(w, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	var resp []dto.MartinReportProductResponse
+	resp := make([]dto.MartinReportProductResponse, 0, len(products))
 	for _, product := range products {
 		resp = append(resp, dto.MartinReportProductResponse{
-			RowNo: product.RowNo,
-			Code: product.Code,
-			Eng: product.Eng,
-			Image: product.Image,
+			RowNo:    product.RowNo,
+			Code:     product.Code,
+			Eng:      product.Eng,
+			Image:    product.Image,
 			Quantity: product.Quantity,
 		})
 	}
-	json.NewEncoder(w).Encode(resp)
+
+	writeJSON(w, http.StatusOK, resp)
+}
+
+// toProductResponse keeps database model fields from leaking directly into API responses.
+func toProductResponse(product models.Products) dto.ProductResponse {
+	return dto.ProductResponse{
+		Code:        product.Code,
+		Eng:         product.Eng,
+		Viet:        product.Viet,
+		Alternative: product.Alternative,
+		Brand:       product.Brand,
+	}
+}
+
+// writeRepositoryError maps repository-level errors to API-safe HTTP responses.
+func writeRepositoryError(w http.ResponseWriter, err error) {
+	if errors.Is(err, repository.ErrNotFound) {
+		writeError(w, http.StatusNotFound, "not found")
+		return
+	}
+
+	writeError(w, http.StatusInternalServerError, "internal server error")
+}
+
+// writeError sends a consistent JSON error payload.
+func writeError(w http.ResponseWriter, status int, message string) {
+	writeJSON(w, status, map[string]string{"error": message})
+}
+
+// writeJSON sends a JSON response with a single, predictable content type.
+func writeJSON(w http.ResponseWriter, status int, payload any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(payload)
 }

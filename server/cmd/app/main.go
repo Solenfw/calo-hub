@@ -1,10 +1,11 @@
+// Package main wires the HTTP server, database pool, and application routes.
 package main
 
 import (
 	"context"
 	"log"
-	"os"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/solenfw/calo-hub/internal/db"
@@ -23,10 +24,13 @@ func main() {
 	repo := repository.NewCatalogRepository(pool)
 	handler := handler.NewCatalogHandler(repo)
 
-	r.Get("/catalog/products/{code}", handler.GetProducts)
+	// Catalog API routes keep exact lookups and searches separate so response shapes stay predictable.
+	r.Get("/catalog/products", handler.SearchProducts)
+	r.Get("/catalog/products/{code}", handler.GetProductByCode)
 	r.Get("/catalog/images/{code}", handler.GetImages)
-	r.Get("/catalog/report/martin/{request_id}", handler.GetMartinReportList)
-	r.Get("/catalog/report/martin/all/{request_id}", handler.GetMartinReportProducts)
+	r.Get("/catalog/report/martin", handler.ListMartinReports)
+	r.Get("/catalog/report/martin/{name}", handler.GetMartinReportByName)
+	r.Get("/catalog/report/martin/all/{report_id}", handler.GetMartinReportProducts)
 
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", r); err != nil {
