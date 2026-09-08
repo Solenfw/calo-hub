@@ -138,7 +138,7 @@ func (r *CatalogRepository) GetMartinReportProductsByReportID(ctx context.Contex
 			img.images[1]       AS image, 
 			mrp.quantity 
 		FROM martin_report_products mrp
-		LEFT JOIN martin_products p ON mrp.code = p.code
+		LEFT JOIN products p ON mrp.code = p.code
 		LEFT JOIN images img ON p.code = img.code
 		WHERE mrp.report_id = $1
 		ORDER BY mrp.row_no ASC;
