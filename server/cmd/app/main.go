@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/solenfw/calo-hub/internal/db"
 	"github.com/solenfw/calo-hub/internal/handler"
 	"github.com/solenfw/calo-hub/internal/repository"
+	"github.com/solenfw/calo-hub/internal/router"
 )
 
 func main() {
@@ -20,17 +20,9 @@ func main() {
 		log.Fatalf("db connect failed: %v", err)
 	}
 
-	r := chi.NewRouter()
 	repo := repository.NewCatalogRepository(pool)
-	handler := handler.NewCatalogHandler(repo)
-
-	// Catalog API routes keep exact lookups and searches separate so response shapes stay predictable.
-	r.Get("/catalog/products", handler.SearchProducts)
-	r.Get("/catalog/products/{code}", handler.GetProductByCode)
-	r.Get("/catalog/images/{code}", handler.GetImages)
-	r.Get("/catalog/report/martin", handler.ListMartinReports)
-	r.Get("/catalog/report/martin/{name}", handler.GetMartinReportByName)
-	r.Get("/catalog/report/martin/all/{report_id}", handler.GetMartinReportProducts)
+	catalogHandler := handler.NewCatalogHandler(repo)
+	r := router.New(catalogHandler)
 
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", r); err != nil {
