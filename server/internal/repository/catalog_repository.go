@@ -127,19 +127,18 @@ func mapRepositoryError(err error) error {
 	return err
 }
 
-// GetMartinReportProductsByReportID fetches report product rows in display order.
+// GetMartinReportProductsByReportID fetches frozen report product snapshots in display order.
+// It returns ErrNotFound when the report does not exist and an empty slice when it exists without products.
 func (r *CatalogRepository) GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error) {
 	query := `
 		SELECT 
 			mrp.report_id,
 			mrp.row_no, 
 			mrp.code, 
-			COALESCE(p.eng, '') AS eng, 
-			img.images[1]       AS image, 
+			mrp.eng,
+			mrp.image,
 			mrp.quantity 
 		FROM martin_report_products mrp
-		LEFT JOIN products p ON mrp.code = p.code
-		LEFT JOIN images img ON p.code = img.code
 		WHERE mrp.report_id = $1
 		ORDER BY mrp.row_no ASC;
 	`
@@ -150,5 +149,24 @@ func (r *CatalogRepository) GetMartinReportProductsByReportID(ctx context.Contex
 	}
 	defer rows.Close()
 
-	return pgx.CollectRows(rows, pgx.RowToStructByName[models.MartinReportProduct])
+	products, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.MartinReportProduct])
+	if err != nil {
+		return nil, err
+	}
+	if len(products) > 0 {
+		return products, nil
+	}
+
+	var reportExists bool
+	if err := r.pool.QueryRow(ctx,
+		`SELECT EXISTS (SELECT 1 FROM martin_report_list WHERE id = $1)`,
+		reportID,
+	).Scan(&reportExists); err != nil {
+		return nil, err
+	}
+	if !reportExists {
+		return nil, ErrNotFound
+	}
+
+	return products, nil
 }
