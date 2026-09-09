@@ -1,3 +1,4 @@
+.PHONY: test vet build fmt migrate-up migrate-down compose down run
 -include .env
 export
 
@@ -15,4 +16,16 @@ migrate-down:
 	goose down
 
 run:
-	go run server/app/main.go
+	go run server/cmd/app/main.go
+
+test:
+	cd server && go test ./...
+
+vet:
+	cd server && go vet ./...
+
+build:
+	cd server && go build ./...
+
+fmt:
+	cd server && gofmt -l . && goimports -l .
