@@ -2,6 +2,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -17,15 +18,28 @@ import (
 
 var productCodePattern = regexp.MustCompile(`^\d{2}-\d{3}-\d{2}-\d{2}$|^[A-Z]{2}(?:-[A-Z])?\d{3,6}[A-Z]{0,2}$`)
 
-// CatalogHandler serves catalog product, image, and Martin report endpoints.
-type CatalogHandler struct {
-	repo *repository.CatalogRepository
+// CatalogStore defines the catalog operations required by the HTTP handlers.
+// Keeping this interface in the consumer package allows handlers to use fakes in unit tests.
+type CatalogStore interface {
+	GetProductByCode(ctx context.Context, code string) (models.Products, error)
+	GetProductsByTerms(ctx context.Context, terms []string) ([]models.Products, error)
+	GetImagesByCode(ctx context.Context, code string) (models.Images, error)
+	GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error)
+	GetMartinReportListByName(ctx context.Context, name string) (models.MartinReportList, error)
+	GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error)
 }
 
-// NewCatalogHandler wires a catalog repository into its HTTP handler.
-func NewCatalogHandler(repo *repository.CatalogRepository) *CatalogHandler {
+var _ CatalogStore = (*repository.CatalogRepository)(nil)
+
+// CatalogHandler serves catalog product, image, and Martin report endpoints.
+type CatalogHandler struct {
+	store CatalogStore
+}
+
+// NewCatalogHandler wires a catalog store into its HTTP handler.
+func NewCatalogHandler(store CatalogStore) *CatalogHandler {
 	return &CatalogHandler{
-		repo: repo,
+		store: store,
 	}
 }
 
@@ -42,7 +56,7 @@ func (h *CatalogHandler) GetProductByCode(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	product, err := h.repo.GetProductByCode(r.Context(), code)
+	product, err := h.store.GetProductByCode(r.Context(), code)
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
@@ -64,7 +78,7 @@ func (h *CatalogHandler) SearchProducts(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	products, err := h.repo.GetProductsByTerms(r.Context(), terms)
+	products, err := h.store.GetProductsByTerms(r.Context(), terms)
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
@@ -86,22 +100,27 @@ func (h *CatalogHandler) GetImages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	images, err := h.repo.GetImagesByCode(r.Context(), code)
+	images, err := h.store.GetImagesByCode(r.Context(), code)
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
 	}
 
+	imageURLs := images.Images
+	if imageURLs == nil {
+		imageURLs = []string{}
+	}
+
 	resp := dto.ImageResponse{
 		Code:   images.Code,
-		Images: images.Images,
+		Images: imageURLs,
 	}
 	writeJSON(w, http.StatusOK, resp)
 }
 
 // ListMartinReports returns the available Martin report lists.
 func (h *CatalogHandler) ListMartinReports(w http.ResponseWriter, r *http.Request) {
-	reports, err := h.repo.GetAllMartinReportLists(r.Context())
+	reports, err := h.store.GetAllMartinReportLists(r.Context())
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
@@ -125,7 +144,7 @@ func (h *CatalogHandler) GetMartinReportByName(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	report, err := h.repo.GetMartinReportListByName(r.Context(), reportName)
+	report, err := h.store.GetMartinReportListByName(r.Context(), reportName)
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
@@ -147,7 +166,7 @@ func (h *CatalogHandler) GetMartinReportProducts(w http.ResponseWriter, r *http.
 		return
 	}
 
-	products, err := h.repo.GetMartinReportProductsByReportID(r.Context(), reportIDInt)
+	products, err := h.store.GetMartinReportProductsByReportID(r.Context(), reportIDInt)
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
