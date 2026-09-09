@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, ChevronDown, Plus, X, ZoomIn, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { KLSProduct, AesculapProduct } from '@/types';
-import { searchAesculapProduct, searchKLSProduct, getKLSImages } from './productHandlers';
+import { ProductResponse } from '@/types';
+import { getImages, searchProducts } from './productHandlers';
 
 export function Catalog() {
   // Search & Filter States
@@ -15,8 +15,8 @@ export function Catalog() {
   const [copied, setCopied] = useState(false);
   
   // Data States
-  const [catalogItems, setCatalogItems] = useState<KLSProduct[] | AesculapProduct[] | null>(null);
-  const [chosenItem, setChosenItem] = useState<KLSProduct | AesculapProduct | null>(null);
+  const [catalogItems, setCatalogItems] = useState<ProductResponse[] | null>(null);
+  const [chosenItem, setChosenItem] = useState<ProductResponse | null>(null);
   
   // Media / Lightbox States
   const [currentImages, setCurrentImages] = useState<string[]>([]);
@@ -32,54 +32,36 @@ export function Catalog() {
 
   // Search Handler
   const handleSearch = async () => {
-    let products: (KLSProduct | AesculapProduct)[] = [];
-
-    if (brand === 'Martin') {
-        products = await searchKLSProduct(searchTerm, limit) ?? [];
-    } else if (brand === 'B-Braun') {
-        products = await searchAesculapProduct(searchTerm, limit) ?? [];
-    } else if (brand === 'All Brands') {
-        const [kls, aesculap] = await Promise.all([
-            searchKLSProduct(searchTerm, limit),
-            searchAesculapProduct(searchTerm, limit),
-        ]);
-        products = [...(kls ?? []), ...(aesculap ?? [])];
+    if (!searchTerm.trim()) {
+      setCatalogItems([]);
+      setChosenItem(null);
+      return;
     }
 
-    setCatalogItems(products);
+    const products = await searchProducts(searchTerm);
+    const filteredProducts = brand === 'All Brands'
+      ? products
+      : products.filter((product) => product.brand === brand);
+
+    setCatalogItems(filteredProducts.slice(0, limit));
     setChosenItem(null);
     setCurrentImages([]);
     setCurrentImageIdx(0);
   };
 
   // Row Click Handler (Fetches images dynamically)
-  const handleSelectItem = async (item: KLSProduct | AesculapProduct) => {
+  const handleSelectItem = async (item: ProductResponse) => {
     setChosenItem(item);
     setCurrentImageIdx(0);
     setCurrentImages([]);
-    
-    // Handle Martin (up to 3 images fetched from API)
-    if (item.brand === 'Martin') {
-      setIsImageLoading(true);
-      try {
-        const klsMedia = await getKLSImages(item.code); 
-        if (klsMedia) {
-          // Filter out empty URLs to create a clean array of available images
-          const validImages = [klsMedia.img1_url, klsMedia.img2_url, klsMedia.img3_url].filter(Boolean) as string[];
-          setCurrentImages(validImages.length > 0 ? validImages : ['https://placehold.co/600x400?text=No+Image']);
-        } else {
-          setCurrentImages(['https://placehold.co/600x400?text=No+Image']);
-        }
-      } catch (error) {
-        setCurrentImages(['https://placehold.co/600x400?text=No+Image']);
-      } finally {
-        setIsImageLoading(false);
-      }
-    } 
-    // Handle Aesculap (1 image attached directly to product)
-    else {
-      const aesculapImg = (item as AesculapProduct).image;
-      setCurrentImages(aesculapImg ? [aesculapImg] : ['/placeholder-image.png']);
+
+    setIsImageLoading(true);
+    try {
+      const imageResponse = await getImages(item.code);
+      const validImages = imageResponse?.images.filter(Boolean) ?? [];
+      setCurrentImages(validImages.length > 0 ? validImages : ['https://placehold.co/600x400?text=No+Image']);
+    } finally {
+      setIsImageLoading(false);
     }
   };
 
@@ -115,7 +97,7 @@ export function Catalog() {
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               type="text" 
               className="w-full bg-surface-container-high border-none rounded-lg pl-12 pr-4 py-3.5 focus:ring-0 focus:border-b-2 focus:border-primary transition-all placeholder:text-outline-variant text-on-surface"
-              placeholder="Enter product name or code (e.g. KN-400)"
+              placeholder="Enter product name"
             />
           </div>
         </div>

@@ -1,42 +1,81 @@
-/*
-    * This file contains the handlers for the product search functionality in the frontend.
-    * Functions will takes in search terms, call to FastAPI 8000 port, and return the product information to be displayed on the frontend.
-*/
+import {
+    ApiErrorResponse,
+    ImageResponse,
+    MartinReportListResponse,
+    MartinReportProductResponse,
+    ProductResponse,
+} from '@/types';
 
-import { KLSProduct, AesculapProduct, KLSImageResponse } from '@/types';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080').replace(/\/+$/, '');
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/';
+async function request<T>(path: string): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}${path}`);
+    const payload: unknown = await response.json().catch(() => null);
 
-export const searchKLSProduct = async (searchTerm: string, limit: number): Promise<KLSProduct[]> => {
+    if (!response.ok) {
+        const errorPayload = payload as Partial<ApiErrorResponse> | null;
+        throw new Error(errorPayload?.error || `Request failed with status ${response.status}`);
+    }
+
+    return payload as T;
+}
+
+/** GET /catalog/products?q=... */
+export const searchProducts = async (searchTerm: string): Promise<ProductResponse[]> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/catalog/kls/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
-        if (!response.ok) return [];
-        return response.json();
+        return await request<ProductResponse[]>(`/catalog/products?q=${encodeURIComponent(searchTerm)}`);
     } catch (error) {
-        console.error('Error searching KLS product:', error);
+        console.error('Error searching products:', error);
         return [];
     }
 };
 
-export const getKLSImages = async (code: string): Promise<KLSImageResponse | null> => {
+/** GET /catalog/products/{code} */
+export const getProductByCode = async (code: string): Promise<ProductResponse | null> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/catalog/kls/images/${encodeURIComponent(code)}`);
-        if (!response.ok) return null;
-        const data = await response.json();
-        return data as KLSImageResponse; // Returns the full object with img1_url, img2_url, img3_url
+        return await request<ProductResponse>(`/catalog/products/${encodeURIComponent(code)}`);
     } catch (error) {
-        console.error('Error fetching KLS image:', error);
+        console.error('Error fetching product:', error);
         return null;
     }
 };
 
-export const searchAesculapProduct = async (searchTerm: string, limit: number): Promise<AesculapProduct[]> => {
+/** GET /catalog/images/{code} */
+export const getImages = async (code: string): Promise<ImageResponse | null> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/catalog/aes/?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
-        if (!response.ok) return [];
-        return response.json();
+        return await request<ImageResponse>(`/catalog/images/${encodeURIComponent(code)}`);
     } catch (error) {
-        console.error('Error searching Aesculap product:', error);
+        console.error('Error fetching product images:', error);
+        return null;
+    }
+};
+
+/** GET /catalog/report/martin */
+export const listMartinReports = async (): Promise<MartinReportListResponse[]> => {
+    try {
+        return await request<MartinReportListResponse[]>('/catalog/report/martin');
+    } catch (error) {
+        console.error('Error fetching Martin reports:', error);
+        return [];
+    }
+};
+
+/** GET /catalog/report/martin/{name} */
+export const getMartinReportByName = async (name: string): Promise<MartinReportListResponse | null> => {
+    try {
+        return await request<MartinReportListResponse>(`/catalog/report/martin/${encodeURIComponent(name)}`);
+    } catch (error) {
+        console.error('Error fetching Martin report:', error);
+        return null;
+    }
+};
+
+/** GET /catalog/report/martin/all/{report_id} */
+export const getMartinReportProducts = async (reportId: number): Promise<MartinReportProductResponse[]> => {
+    try {
+        return await request<MartinReportProductResponse[]>(`/catalog/report/martin/all/${reportId}`);
+    } catch (error) {
+        console.error('Error fetching Martin report products:', error);
         return [];
     }
 };

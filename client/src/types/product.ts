@@ -1,24 +1,34 @@
 
-export interface KLSProduct {
+/** Matches server/internal/dto.ProductResponse. */
+export interface ProductResponse {
     code: string;
     viet: string;
     eng: string;
-    alternative: string | null;
+    alternative: string;
     brand: string;
 }
 
-export interface AesculapProduct {
+/** Matches server/internal/dto.ImageResponse. */
+export interface ImageResponse {
     code: string;
-    viet: string;
+    images: string[];
+}
+
+/** Matches server/internal/dto.MartinReportListResponse. */
+export interface MartinReportListResponse {
+    name: string;
+}
+
+/** Matches server/internal/dto.MartinReportProductResponse. */
+export interface MartinReportProductResponse {
+    row_no: number;
+    code: string;
     eng: string;
-    image: string;
-    alternative: string | null;
-    brand: string;
+    image: string | null;
+    quantity: number;
 }
 
-export interface KLSImageResponse {
-    code: string;
-    img1_url: string;
-    img2_url: string;
-    img3_url: string;
+/** Matches the error payload written by the server handlers. */
+export interface ApiErrorResponse {
+    error: string;
 }
