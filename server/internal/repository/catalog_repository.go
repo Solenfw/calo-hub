@@ -70,7 +70,7 @@ func (r *CatalogRepository) GetProductsByTerms(ctx context.Context, terms []stri
 // GetImagesByCode fetches the stored image list for one product code.
 func (r *CatalogRepository) GetImagesByCode(ctx context.Context, code string) (models.Images, error) {
 	rows, err := r.pool.Query(ctx,
-		`SELECT code, Images FROM images WHERE code = $1`,
+		`SELECT code, images FROM images WHERE code = $1`,
 		code,
 	)
 	if err != nil {
