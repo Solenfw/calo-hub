@@ -90,3 +90,15 @@ temp/
 .codex/
 .agents/
 .uv-cache/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.test
+*.out
+/bin/
+/vendor/
+go.work
+go.work.sum
