@@ -6,7 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-
+	
+	"github.com/joho/godotenv"
 	"github.com/solenfw/calo-hub/internal/db"
 	"github.com/solenfw/calo-hub/internal/handler"
 	"github.com/solenfw/calo-hub/internal/repository"
@@ -14,8 +15,11 @@ import (
 )
 
 func main() {
+	homeDir, _ := os.UserHomeDir()
+	_ = godotenv.Load(homeDir + "/.config/secrets/calohub/.env")
+
 	// wire config, db pool, router, start http server
-	pool, err := db.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	pool, err := db.Connect(context.Background(), os.Getenv("GOOSE_DBSTRING"))
 	if err != nil {
 		log.Fatalf("db connect failed: %v", err)
 	}
