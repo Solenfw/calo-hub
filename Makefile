@@ -1,5 +1,5 @@
 .PHONY: test vet build fmt migrate-up migrate-down compose down run
--include .env
+-include ~/.config/secrets/calohub/.env
 export
 
 

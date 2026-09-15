@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 5
     env_file:
-      - .env
+      - ~/.config/secrets/calohub/.env
 
 volumes:
   postgres_data:
