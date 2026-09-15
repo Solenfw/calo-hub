@@ -28,7 +28,9 @@ func NewCatalogRepository(pool *pgxpool.Pool) *CatalogRepository {
 // GetProductByCode fetches one product by its exact catalog code.
 func (r *CatalogRepository) GetProductByCode(ctx context.Context, code string) (models.Products, error) {
 	rows, err := r.pool.Query(ctx,
-		`SELECT code, eng, viet, alternative, brand FROM products WHERE code = $1`,
+		`SELECT code, eng, viet, alternative, brand, images FROM products WHERE code = $1
+		 JOIN images ON products.code = images.code
+		`,
 		code,
 	)
 	if err != nil {
@@ -51,8 +53,9 @@ func (r *CatalogRepository) GetProductsByTerms(ctx context.Context, terms []stri
 	}
 
 	query := `
-		SELECT code, eng, viet, alternative, brand 
+		SELECT code, eng, viet, alternative, brand, images 
 		FROM products
+		JOIN images ON products.code = images.code
 		WHERE concat_ws(' ', eng, viet) ILIKE ALL (
 			ARRAY(SELECT '%' || unnest($1::text[]) || '%')
 		);
