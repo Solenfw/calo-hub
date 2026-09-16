@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, ChevronDown, Plus, X, ZoomIn, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProductResponse } from '@/types';
-import { getImages, searchProducts } from './productHandlers';
+import { getImages, getProductByCode, searchProducts } from './productHandlers';
 
 export function Catalog() {
   // Search & Filter States
@@ -35,6 +35,15 @@ export function Catalog() {
     if (!searchTerm.trim()) {
       setCatalogItems([]);
       setChosenItem(null);
+      return;
+    }
+
+    const product = await getProductByCode(searchTerm);
+    if (product != null) {
+      setCatalogItems([product]);
+      setChosenItem(null);
+      setCurrentImages([]);
+      setCurrentImageIdx(0);
       return;
     }
 
