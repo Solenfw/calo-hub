@@ -91,6 +91,102 @@ func TestCatalogHandlerGetMartinReportByName(t *testing.T) {
 	}
 }
 
+func TestReportHandlerGetMartinReport(t *testing.T) {
+	image := "https://example.test/image.png"
+	tests := []struct {
+		name       string
+		reportName string
+		reportID   int
+		products   []models.MartinReportProduct
+		storeError error
+		wantStatus int
+		wantError  string
+		wantPDF    bool
+	}{
+		{
+			name:       "missing report name",
+			wantStatus: http.StatusBadRequest,
+			wantError:  "report name is required",
+		},
+		{
+			name:       "not found report metadata",
+			reportName: "Missing",
+			storeError: repository.ErrNotFound,
+			wantStatus: http.StatusNotFound,
+			wantError:  "not found",
+		},
+		{
+			name:       "not found report products",
+			reportName: "Report A",
+			reportID:   7,
+			storeError: repository.ErrNotFound,
+			wantStatus: http.StatusNotFound,
+			wantError:  "not found",
+		},
+		{
+			name:       "failed to generate PDF",
+			reportName: "Report A",
+			reportID:   7,
+			products:   []models.MartinReportProduct{{ReportID: 7, RowNo: 1, Code: "AA804R", Eng: "Ruler", Image: &image, Quantity: 1}},
+			wantStatus: http.StatusOK,
+			wantPDF:    true,
+		},
+		{
+			name:       "valid report generates PDF",
+			reportName: "Report A",
+			reportID:   7,
+			products:   []models.MartinReportProduct{{ReportID: 7, RowNo: 1, Code: "AA804R", Eng: "Ruler", Image: &image, Quantity: 1}},
+			wantStatus: http.StatusOK,
+			wantPDF:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			store := &fakeCatalogReportStore{
+				getMartinReportListByName: func(_ context.Context, name string) (models.MartinReportList, error) {
+					if tt.reportName != "" && name != tt.reportName {
+						t.Errorf("store name = %q, want %q", name, tt.reportName)
+					}
+					if tt.storeError == repository.ErrNotFound && tt.reportName == "Missing" {
+						return models.MartinReportList{}, tt.storeError
+					}
+					return models.MartinReportList{ID: tt.reportID, Name: name}, tt.storeError
+				},
+				getMartinReportProductsByReportID: func(_ context.Context, reportID int) ([]models.MartinReportProduct, error) {
+					if tt.reportID != 0 && reportID != tt.reportID {
+						t.Errorf("store report ID = %d, want %d", reportID, tt.reportID)
+					}
+					if tt.storeError == repository.ErrNotFound && tt.reportName == "Missing" {
+						return nil, tt.storeError
+					}
+					return tt.products, tt.storeError
+				},
+			}
+			h := NewReportHandler(store)
+			recorder := httptest.NewRecorder()
+			h.GetMartinReport(recorder, requestWithRouteParams(http.MethodGet, "/catalog/report/martin/"+url.PathEscape(tt.reportName)+"/pdf", map[string]string{"name": tt.reportName}))
+
+			if tt.wantError != "" {
+				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
+				return
+			}
+			if tt.wantPDF {
+				if recorder.Code != tt.wantStatus {
+					t.Fatalf("status = %d, want %d", recorder.Code, tt.wantStatus)
+				}
+				if recorder.Header().Get("Content-Type") != "application/pdf" {
+					t.Fatalf("Content-Type = %q, want application/pdf", recorder.Header().Get("Content-Type"))
+				}
+				if len(recorder.Body.Bytes()) == 0 {
+					t.Fatal("PDF body is empty")
+				}
+				return
+			}
+		})
+	}
+}
+
 func TestCatalogHandlerGetMartinReportProducts(t *testing.T) {
 	image := "https://example.test/image.png"
 	tests := []struct {
