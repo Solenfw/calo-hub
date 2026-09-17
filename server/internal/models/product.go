@@ -1,4 +1,9 @@
-// Package models defines database-backed domain records.
+// Package models defines the domain records used by the repository and handler
+// layers.
+//
+// These structs correspond closely to database rows and are converted into DTO
+// payloads at the HTTP boundary so the application keeps storage details and API
+// contracts intentionally separate.
 package models
 
 // Products represents a product row from the catalog.

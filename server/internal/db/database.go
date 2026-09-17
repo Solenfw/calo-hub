@@ -1,3 +1,8 @@
+// Package db owns the database connection lifecycle for the application.
+//
+// The repository layer expects a *pgxpool.Pool and the bootstrap code wires it
+// here so the rest of the server can work with a shared, pooled connection
+// source rather than opening ad-hoc database sessions.
 package db
 
 import (
@@ -8,7 +13,9 @@ import (
 )
 
 
-// Connect returns a pgx connection pool.
+// Connect creates and validates a pgx connection pool from the supplied DSN.
+// The pool is used across repositories so queries can share a connection pool
+// while still keeping database access logic separated from HTTP concerns.
 func Connect(ctx context.Context, dsn string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {

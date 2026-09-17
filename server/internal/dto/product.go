@@ -1,4 +1,9 @@
-// Package dto defines API request and response payload shapes.
+// Package dto defines the public API payload shapes sent between the HTTP layer
+// and clients.
+//
+// These models intentionally keep database internals out of the response schema
+// and present a stable contract that the frontend can depend on regardless of
+// how the repository stores the data internally.
 package dto
 
 // ProductResponse is the public product payload returned by catalog endpoints.

@@ -108,6 +108,13 @@ func TestNewRoutesDispatchToExpectedHandler(t *testing.T) {
 			wantName:   "monthly",
 		},
 		{
+			name:       "Martin report PDF route",
+			path:       "/catalog/report/martin/monthly/pdf",
+			wantCalled: "GetMartinReportProductsByReportID",
+			wantName:   "monthly",
+			wantID:     0,
+		},
+		{
 			name:       "Martin report products route",
 			path:       "/catalog/report/martin/all/42",
 			wantCalled: "GetMartinReportProductsByReportID",

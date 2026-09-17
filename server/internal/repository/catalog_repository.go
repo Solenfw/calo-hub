@@ -10,10 +10,16 @@ import (
 	"github.com/solenfw/calo-hub/internal/models"
 )
 
-// ErrNotFound marks a missing catalog row without exposing database-driver errors.
+// ErrNotFound marks a missing catalog row without exposing database-driver
+// errors through the application boundary.
 var ErrNotFound = errors.New("catalog item not found")
 
-// CatalogRepository reads catalog products, images, and Martin report data.
+// CatalogRepository reads catalog products, images, and Martin report data from
+// the PostgreSQL database.
+//
+// The repository is intentionally responsible only for persistence and row-to-
+// struct mapping. HTTP code and business logic live in the handler layer, while
+// the database specifics remain here.
 type CatalogRepository struct {
 	pool *pgxpool.Pool
 }
