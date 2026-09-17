@@ -47,12 +47,11 @@ func NewCatalogHandler(store CatalogStore) *CatalogHandler {
 func (h *CatalogHandler) GetProductByCode(w http.ResponseWriter, r *http.Request) {
 	code := strings.TrimSpace(chi.URLParam(r, "code"))
 	if code == "" {
-		writeError(w, http.StatusBadRequest, "product code is required")
+		writeError(w, http.StatusBadRequest, "empty input argument")
 		return
 	}
 
 	if !productCodePattern.MatchString(code) {
-		writeError(w, http.StatusBadRequest, "invalid product code")
 		return
 	}
 
@@ -74,7 +73,7 @@ func (h *CatalogHandler) SearchProducts(w http.ResponseWriter, r *http.Request) 
 
 	terms := strings.Fields(searchTerm)
 	if len(terms) == 0 {
-		writeError(w, http.StatusBadRequest, "search query is required")
+		writeError(w, http.StatusBadRequest, "empty search query")
 		return
 	}
 
@@ -102,7 +101,6 @@ func (h *CatalogHandler) GetImages(w http.ResponseWriter, r *http.Request) {
 
 	images, err := h.store.GetImagesByCode(r.Context(), code)
 	if err != nil {
-		writeRepositoryError(w, err)
 		return
 	}
 
