@@ -66,7 +66,8 @@ func (s *recordingCatalogStore) GetMartinReportProductsByReportID(_ context.Cont
 func TestNewRoutesDispatchToExpectedHandler(t *testing.T) {
 	store := &recordingCatalogStore{}
 	catalogHandler := handler.NewCatalogHandler(store)
-	r := router.New(catalogHandler)
+	catalogReportHandler := handler.NewReportHandler(store)
+	r := router.New(catalogHandler, catalogReportHandler)
 
 	tests := []struct {
 		name       string

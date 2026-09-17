@@ -3,12 +3,15 @@ package router
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/solenfw/calo-hub/internal/handler"
 	"github.com/go-chi/cors"
 )
 
-// New builds the application router for the catalog handlers.
-func New(h *handler.CatalogHandler) chi.Router {
+
+type routable interface {
+	RegisterRoutes(r chi.Router)
+}
+
+func New(handlers ...routable) chi.Router {
 	r := chi.NewRouter()
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -18,11 +21,10 @@ func New(h *handler.CatalogHandler) chi.Router {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
-	r.Get("/catalog/products", h.SearchProducts)
-	r.Get("/catalog/products/{code}", h.GetProductByCode)
-	r.Get("/catalog/images/{code}", h.GetImages)
-	r.Get("/catalog/report/martin", h.ListMartinReports)
-	r.Get("/catalog/report/martin/{name}", h.GetMartinReportByName)
-	r.Get("/catalog/report/martin/all/{report_id}", h.GetMartinReportProducts)
+
+	for _, h := range handlers {
+		h.RegisterRoutes(r)
+	}
+
 	return r
 }
