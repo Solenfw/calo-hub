@@ -121,7 +121,7 @@ export function Catalog() {
             >
               <option>All Brands</option>
               <option>Martin</option>
-              <option>B-Braun</option>
+              <option>BBraun</option>
               <option>Stema</option>
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-outline-variant w-4 h-4" />
