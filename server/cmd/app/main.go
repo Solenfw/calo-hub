@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 	
 	"github.com/joho/godotenv"
 	"github.com/solenfw/calo-hub/internal/db"
@@ -29,9 +30,18 @@ func main() {
 	r := router.New(catalogHandler)
 
 	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	if err := http.ListenAndServe(":8080", loggingMiddleware(r)); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 
 	pool.Close()
+}
+
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		log.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(start))
+	})
 }
