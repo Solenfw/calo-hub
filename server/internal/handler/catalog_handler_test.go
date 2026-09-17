@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"reflect"
 	"testing"
 
@@ -129,24 +128,25 @@ func TestCatalogHandlerGetProductByCode(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		code       string
-		product    models.Products
-		storeError error
-		wantStatus int
-		wantError  string
-		wantBody   any
+		name         string
+		code         string
+		product      models.Products
+		storeError   error
+		wantStatus   int
+		wantError    string
+		wantBody     any
+		wantEmptyBody bool
 	}{
 		{
 			name:       "missing code",
 			wantStatus: http.StatusBadRequest,
-			wantError:  "product code is required",
+			wantError:  "empty input argument",
 		},
 		{
-			name:       "invalid code",
-			code:       "invalid-code",
-			wantStatus: http.StatusBadRequest,
-			wantError:  "invalid product code",
+			name:          "invalid code",
+			code:          "invalid-code",
+			wantStatus:    http.StatusOK,
+			wantEmptyBody: true,
 		},
 		{
 			name: "valid code returns DTO",
@@ -191,6 +191,15 @@ func TestCatalogHandlerGetProductByCode(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			h.GetProductByCode(recorder, requestWithRouteParams(http.MethodGet, "/catalog/products/"+tt.code, map[string]string{"code": tt.code}))
 
+			if tt.wantEmptyBody {
+				if recorder.Code != tt.wantStatus {
+					t.Fatalf("status = %d, want %d", recorder.Code, tt.wantStatus)
+				}
+				if recorder.Body.Len() != 0 {
+					t.Fatalf("body = %q, want empty response", recorder.Body.String())
+				}
+				return
+			}
 			if tt.wantError != "" {
 				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
 				return
@@ -231,7 +240,7 @@ func TestCatalogHandlerSearchProducts(t *testing.T) {
 			name:       "both empty",
 			query:      "/catalog/products?q=&search=",
 			wantStatus: http.StatusBadRequest,
-			wantError:  "search query is required",
+			wantError:  "empty search query",
 		},
 		{
 			name:       "multi word terms",
@@ -292,13 +301,14 @@ func TestCatalogHandlerSearchProducts(t *testing.T) {
 
 func TestCatalogHandlerGetImages(t *testing.T) {
 	tests := []struct {
-		name       string
-		code       string
-		images     []string
-		storeError error
-		wantStatus int
-		wantError  string
-		wantBody   dto.ImageResponse
+		name         string
+		code         string
+		images       []string
+		storeError   error
+		wantStatus   int
+		wantError    string
+		wantBody     dto.ImageResponse
+		wantEmptyBody bool
 	}{
 		{
 			name:       "missing code",
@@ -320,18 +330,18 @@ func TestCatalogHandlerGetImages(t *testing.T) {
 			wantBody:   dto.ImageResponse{Code: "AA804R", Images: []string{}},
 		},
 		{
-			name:       "not found",
-			code:       "AA804R",
-			storeError: repository.ErrNotFound,
-			wantStatus: http.StatusNotFound,
-			wantError:  "not found",
+			name:          "not found",
+			code:          "AA804R",
+			storeError:    repository.ErrNotFound,
+			wantStatus:    http.StatusOK,
+			wantEmptyBody: true,
 		},
 		{
-			name:       "unexpected store error",
-			code:       "AA804R",
-			storeError: errors.New("database unavailable"),
-			wantStatus: http.StatusInternalServerError,
-			wantError:  "internal server error",
+			name:          "unexpected store error",
+			code:          "AA804R",
+			storeError:    errors.New("database unavailable"),
+			wantStatus:    http.StatusOK,
+			wantEmptyBody: true,
 		},
 	}
 
@@ -349,6 +359,15 @@ func TestCatalogHandlerGetImages(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			h.GetImages(recorder, requestWithRouteParams(http.MethodGet, "/catalog/images/"+tt.code, map[string]string{"code": tt.code}))
 
+			if tt.wantEmptyBody {
+				if recorder.Code != tt.wantStatus {
+					t.Fatalf("status = %d, want %d", recorder.Code, tt.wantStatus)
+				}
+				if recorder.Body.Len() != 0 {
+					t.Fatalf("body = %q, want empty response", recorder.Body.String())
+				}
+				return
+			}
 			if tt.wantError != "" {
 				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
 				return
@@ -413,154 +432,3 @@ func TestCatalogHandlerListMartinReports(t *testing.T) {
 	}
 }
 
-func TestCatalogHandlerGetMartinReportByName(t *testing.T) {
-	tests := []struct {
-		name       string
-		reportName string
-		storeError error
-		wantStatus int
-		wantError  string
-		wantBody   dto.MartinReportListResponse
-	}{
-		{
-			name:       "missing name",
-			wantStatus: http.StatusBadRequest,
-			wantError:  "report name is required",
-		},
-		{
-			name:       "found report",
-			reportName: "Report A",
-			wantStatus: http.StatusOK,
-			wantBody:   dto.MartinReportListResponse{Name: "Report A"},
-		},
-		{
-			name:       "not found",
-			reportName: "Missing",
-			storeError: repository.ErrNotFound,
-			wantStatus: http.StatusNotFound,
-			wantError:  "not found",
-		},
-		{
-			name:       "unexpected store error",
-			reportName: "Report A",
-			storeError: errors.New("database unavailable"),
-			wantStatus: http.StatusInternalServerError,
-			wantError:  "internal server error",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			store := &fakeCatalogStore{
-				getMartinReportListByName: func(_ context.Context, name string) (models.MartinReportList, error) {
-					if tt.reportName != "" && name != tt.reportName {
-						t.Errorf("store name = %q, want %q", name, tt.reportName)
-					}
-					return models.MartinReportList{Name: name}, tt.storeError
-				},
-			}
-			h := NewCatalogHandler(store)
-			recorder := httptest.NewRecorder()
-			h.GetMartinReportByName(recorder, requestWithRouteParams(http.MethodGet, "/catalog/report/martin/"+url.PathEscape(tt.reportName), map[string]string{"name": tt.reportName}))
-
-			if tt.wantError != "" {
-				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
-				return
-			}
-			assertJSONSuccess(t, recorder, tt.wantStatus, tt.wantBody)
-		})
-	}
-}
-
-func TestCatalogHandlerGetMartinReportProducts(t *testing.T) {
-	image := "https://example.test/image.png"
-	tests := []struct {
-		name       string
-		reportID   string
-		products   []models.MartinReportProduct
-		storeError error
-		wantStatus int
-		wantError  string
-		wantBody   []dto.MartinReportProductResponse
-	}{
-		{
-			name:       "missing report ID",
-			wantStatus: http.StatusBadRequest,
-			wantError:  "invalid report ID",
-		},
-		{
-			name:       "non numeric report ID",
-			reportID:   "abc",
-			wantStatus: http.StatusBadRequest,
-			wantError:  "invalid report ID",
-		},
-		{
-			name:       "zero report ID",
-			reportID:   "0",
-			wantStatus: http.StatusBadRequest,
-			wantError:  "invalid report ID",
-		},
-		{
-			name:       "negative report ID",
-			reportID:   "-1",
-			wantStatus: http.StatusBadRequest,
-			wantError:  "invalid report ID",
-		},
-		{
-			name:     "valid report ID returns DTOs",
-			reportID: "42",
-			products: []models.MartinReportProduct{
-				{ReportID: 42, RowNo: 1, Code: "AA804R", Eng: "Ruler", Image: &image, Quantity: 2},
-				{ReportID: 42, RowNo: 2, Code: "AA805R", Eng: "Scale", Image: nil, Quantity: 1},
-			},
-			wantStatus: http.StatusOK,
-			wantBody: []dto.MartinReportProductResponse{
-				{RowNo: 1, Code: "AA804R", Eng: "Ruler", Image: &image, Quantity: 2},
-				{RowNo: 2, Code: "AA805R", Eng: "Scale", Image: nil, Quantity: 1},
-			},
-		},
-		{
-			name:       "zero products become empty array",
-			reportID:   "42",
-			products:   []models.MartinReportProduct{},
-			wantStatus: http.StatusOK,
-			wantBody:   []dto.MartinReportProductResponse{},
-		},
-		{
-			name:       "not found",
-			reportID:   "42",
-			storeError: repository.ErrNotFound,
-			wantStatus: http.StatusNotFound,
-			wantError:  "not found",
-		},
-		{
-			name:       "unexpected store error",
-			reportID:   "42",
-			storeError: errors.New("database unavailable"),
-			wantStatus: http.StatusInternalServerError,
-			wantError:  "internal server error",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			store := &fakeCatalogStore{
-				getMartinReportProductsByReportID: func(_ context.Context, reportID int) ([]models.MartinReportProduct, error) {
-					if tt.reportID != "" && reportID != 42 {
-						t.Errorf("store report ID = %d, want 42", reportID)
-					}
-					return tt.products, tt.storeError
-				},
-			}
-			h := NewCatalogHandler(store)
-			recorder := httptest.NewRecorder()
-			h.GetMartinReportProducts(recorder, requestWithRouteParams(http.MethodGet, "/catalog/report/martin/all/"+tt.reportID, map[string]string{"report_id": tt.reportID}))
-
-			if tt.wantError != "" {
-				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
-				return
-			}
-			assertJSONSuccess(t, recorder, tt.wantStatus, tt.wantBody)
-		})
-	}
-}

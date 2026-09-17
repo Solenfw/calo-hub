@@ -26,8 +26,11 @@ func main() {
 	}
 
 	repo := repository.NewCatalogRepository(pool)
+
 	catalogHandler := handler.NewCatalogHandler(repo)
-	r := router.New(catalogHandler)
+	reportHandler := handler.NewReportHandler(repo)
+
+	r := router.New(catalogHandler, reportHandler)
 
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", loggingMiddleware(r)); err != nil {

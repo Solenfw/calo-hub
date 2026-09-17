@@ -7,7 +7,6 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -25,8 +24,6 @@ type CatalogStore interface {
 	GetProductsByTerms(ctx context.Context, terms []string) ([]models.Products, error)
 	GetImagesByCode(ctx context.Context, code string) (models.Images, error)
 	GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error)
-	GetMartinReportListByName(ctx context.Context, name string) (models.MartinReportList, error)
-	GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error)
 }
 
 var _ CatalogStore = (*repository.CatalogRepository)(nil)
@@ -134,56 +131,6 @@ func (h *CatalogHandler) ListMartinReports(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, resp)
 }
 
-// GetMartinReportByName returns metadata for a single Martin report list.
-func (h *CatalogHandler) GetMartinReportByName(w http.ResponseWriter, r *http.Request) {
-	reportName := strings.TrimSpace(chi.URLParam(r, "name"))
-	if reportName == "" {
-		writeError(w, http.StatusBadRequest, "report name is required")
-		return
-	}
-
-	report, err := h.store.GetMartinReportListByName(r.Context(), reportName)
-	if err != nil {
-		writeRepositoryError(w, err)
-		return
-	}
-
-	resp := dto.MartinReportListResponse{
-		Name: report.Name,
-	}
-	writeJSON(w, http.StatusOK, resp)
-}
-
-// GetMartinReportProducts returns all products attached to a Martin report.
-func (h *CatalogHandler) GetMartinReportProducts(w http.ResponseWriter, r *http.Request) {
-	reportID := strings.TrimSpace(chi.URLParam(r, "report_id"))
-
-	reportIDInt, err := strconv.Atoi(reportID)
-	if err != nil || reportIDInt <= 0 {
-		writeError(w, http.StatusBadRequest, "invalid report ID")
-		return
-	}
-
-	products, err := h.store.GetMartinReportProductsByReportID(r.Context(), reportIDInt)
-	if err != nil {
-		writeRepositoryError(w, err)
-		return
-	}
-
-	resp := make([]dto.MartinReportProductResponse, 0, len(products))
-	for _, product := range products {
-		resp = append(resp, dto.MartinReportProductResponse{
-			RowNo:    product.RowNo,
-			Code:     product.Code,
-			Eng:      product.Eng,
-			Image:    product.Image,
-			Quantity: product.Quantity,
-		})
-	}
-
-	writeJSON(w, http.StatusOK, resp)
-}
-
 // toProductResponse keeps database model fields from leaking directly into API responses.
 func toProductResponse(product models.Products) dto.ProductResponse {
 	return dto.ProductResponse{
@@ -215,4 +162,12 @@ func writeJSON(w http.ResponseWriter, status int, payload any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(payload)
+}
+
+
+func (h* CatalogHandler) RegisterRoutes(r chi.Router) {
+	r.Get("/catalog/products", h.SearchProducts)
+	r.Get("/catalog/products/{code}", h.GetProductByCode)
+	r.Get("/catalog/images/{code}", h.GetImages)
+	r.Get("/catalog/report/martin", h.ListMartinReports)
 }
