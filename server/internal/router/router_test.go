@@ -63,6 +63,24 @@ func (s *recordingCatalogStore) GetMartinReportProductsByReportID(_ context.Cont
 	return []models.MartinReportProduct{}, nil
 }
 
+func (s *recordingCatalogStore) CreateMartinReportList(_ context.Context, name string) (models.MartinReportList, error) {
+	s.called = "CreateMartinReportList"
+	s.name = name
+	return models.MartinReportList{ID: 1, Name: name}, nil
+}
+
+func (s *recordingCatalogStore) DeleteMartinReportList(_ context.Context, reportID int) error {
+	s.called = "DeleteMartinReportList"
+	s.reportID = reportID
+	return nil
+}
+
+func (s *recordingCatalogStore) ReplaceMartinReportProducts(_ context.Context, reportID int, products []models.MartinReportProduct) error {
+	s.called = "ReplaceMartinReportProducts"
+	s.reportID = reportID
+	return nil
+}
+
 func TestNewRoutesDispatchToExpectedHandler(t *testing.T) {
 	store := &recordingCatalogStore{}
 	catalogHandler := handler.NewCatalogHandler(store)
@@ -98,25 +116,25 @@ func TestNewRoutesDispatchToExpectedHandler(t *testing.T) {
 		},
 		{
 			name:       "Martin report list route",
-			path:       "/catalog/report/martin",
+			path:       "/report/martin",
 			wantCalled: "GetAllMartinReportLists",
 		},
 		{
 			name:       "Martin report name route",
-			path:       "/catalog/report/martin/monthly",
+			path:       "/report/martin/monthly",
 			wantCalled: "GetMartinReportListByName",
 			wantName:   "monthly",
 		},
 		{
 			name:       "Martin report PDF route",
-			path:       "/catalog/report/martin/monthly/pdf",
+			path:       "/report/martin/monthly/pdf",
 			wantCalled: "GetMartinReportProductsByReportID",
 			wantName:   "monthly",
 			wantID:     0,
 		},
 		{
 			name:       "Martin report products route",
-			path:       "/catalog/report/martin/all/42",
+			path:       "/report/martin/all/42",
 			wantCalled: "GetMartinReportProductsByReportID",
 			wantID:     42,
 		},
@@ -147,6 +165,27 @@ func TestNewRoutesDispatchToExpectedHandler(t *testing.T) {
 				t.Fatalf("terms = %#v, want %#v", store.terms, tt.wantTerms)
 			}
 		})
+	}
+}
+
+func TestNewRoutesServesMartinTemplateDownload(t *testing.T) {
+	store := &recordingCatalogStore{}
+	r := router.New(handler.NewCatalogHandler(store), handler.NewReportHandler(store))
+	recorder := httptest.NewRecorder()
+
+	r.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/report/martin/template", nil))
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	if recorder.Header().Get("Content-Disposition") == "" {
+		t.Fatal("Content-Disposition header missing for template download")
+	}
+	if len(recorder.Body.Bytes()) == 0 {
+		t.Fatal("template download body is empty")
+	}
+	if store.called != "" {
+		t.Fatalf("handler called = %q, want no catalog/report store invocation", store.called)
 	}
 }
 
