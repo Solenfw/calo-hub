@@ -29,10 +29,10 @@ type MartinReportList struct {
 
 // MartinReportProduct represents a product row within a Martin report.
 type MartinReportProduct struct {
-	ReportID int     `db:"report_id" json:"report_id"`
-	RowNo    int     `db:"row_no" json:"row_no"`
-	Code     string  `db:"code" json:"code"`
-	Eng      string  `db:"eng" json:"eng"`
-	Image    *string `db:"image" json:"image"`
-	Quantity int     `db:"quantity" json:"quantity"`
+	ReportID 		int     `db:"report_id" json:"report_id"`
+	RowNo    		int     `db:"row_no" json:"row_no"`
+	Code   			string  `db:"code" json:"code"`
+	Description    string  `db:"description" json:"description"`
+	Image    		*string `db:"image" json:"image"`
+	Quantity 		int     `db:"quantity" json:"quantity"`
 }

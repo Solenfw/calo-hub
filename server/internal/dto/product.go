@@ -23,14 +23,31 @@ type ImageResponse struct {
 
 // MartinReportListResponse is the public payload for Martin report metadata.
 type MartinReportListResponse struct {
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 // MartinReportProductResponse is the public payload for products in a Martin report.
 type MartinReportProductResponse struct {
-	RowNo    int     `json:"row_no"`
-	Code     string  `json:"code"`
-	Eng      string  `json:"eng"`
-	Image    *string `json:"image"`
-	Quantity int     `json:"quantity"`
+	RowNo    		int     `json:"row_no"`
+	Code     		string  `json:"code"`
+	Description    string  `json:"description"`
+	Image    		*string `json:"image"`
+	Quantity 		int     `json:"quantity"`
 }
+
+// MartinReportProductRequest is the payload used when replacing the instruments
+// attached to a Martin report.
+type MartinReportProductRequest struct {
+	RowNo    		int     `json:"row_no"`
+	Code     		string  `json:"code"`
+	Description    string  `json:"description"`
+	Image    		string  `json:"image"`
+	Quantity 		int     `json:"quantity"`
+}
+
+// MartinReportProductsRequest contains the full set of rows to save for a report.
+type MartinReportProductsRequest struct {
+	Products []MartinReportProductRequest `json:"products"`
+}
+
