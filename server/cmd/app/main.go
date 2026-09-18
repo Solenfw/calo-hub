@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-	
+
 	"github.com/joho/godotenv"
 	"github.com/solenfw/calo-hub/internal/db"
 	"github.com/solenfw/calo-hub/internal/handler"
@@ -32,10 +32,11 @@ func main() {
 		log.Fatalf("db connect failed: %v", err)
 	}
 
-	repo := repository.NewCatalogRepository(pool)
+	catalogRepo := repository.NewCatalogRepository(pool)
+	reportRepo := repository.NewReportRepository(pool)
 
-	catalogHandler := handler.NewCatalogHandler(repo)
-	reportHandler := handler.NewReportHandler(repo)
+	catalogHandler := handler.NewCatalogHandler(catalogRepo)
+	reportHandler := handler.NewReportHandler(reportRepo, catalogRepo)
 
 	r := router.New(catalogHandler, reportHandler)
 
@@ -46,14 +47,32 @@ func main() {
 
 	pool.Close()
 }
+// responseRecorder is a custom wrapper to capture the HTTP status code.
+type responseRecorder struct {
+	http.ResponseWriter
+	statusCode int
+}
 
-// loggingMiddleware records the HTTP method, path, and request duration so each
-// route invocation can be observed in the process logs without affecting the
-// handler logic itself.
+// WriteHeader intercepts the status code before passing it to the real ResponseWriter.
+func (rec *responseRecorder) WriteHeader(statusCode int) {
+	rec.statusCode = statusCode
+	rec.ResponseWriter.WriteHeader(statusCode)
+}
+
+// loggingMiddleware records the status code, method, path, and duration.
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		next.ServeHTTP(w, r)
-		log.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(start))
+
+		// Wrap the original writer. Default to 200 in case WriteHeader is never called explicitly.
+		rec := &responseRecorder{
+			ResponseWriter: w,
+			statusCode:     http.StatusOK, 
+		}
+
+		next.ServeHTTP(rec, r)
+
+		// Now you can see exactly which requests are failing
+		log.Printf("[%d] %s %s (%s)", rec.statusCode, r.Method, r.URL.Path, time.Since(start))
 	})
 }
