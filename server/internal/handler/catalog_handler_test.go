@@ -19,9 +19,6 @@ type fakeCatalogStore struct {
 	getProductByCode                  func(context.Context, string) (models.Products, error)
 	getProductsByTerms                func(context.Context, []string) ([]models.Products, error)
 	getImagesByCode                   func(context.Context, string) (models.Images, error)
-	getAllMartinReportLists           func(context.Context) ([]models.MartinReportList, error)
-	getMartinReportListByName         func(context.Context, string) (models.MartinReportList, error)
-	getMartinReportProductsByReportID func(context.Context, int) ([]models.MartinReportProduct, error)
 }
 
 func (f *fakeCatalogStore) GetProductByCode(ctx context.Context, code string) (models.Products, error) {
@@ -43,27 +40,6 @@ func (f *fakeCatalogStore) GetImagesByCode(ctx context.Context, code string) (mo
 		return f.getImagesByCode(ctx, code)
 	}
 	return models.Images{}, nil
-}
-
-func (f *fakeCatalogStore) GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error) {
-	if f.getAllMartinReportLists != nil {
-		return f.getAllMartinReportLists(ctx)
-	}
-	return nil, nil
-}
-
-func (f *fakeCatalogStore) GetMartinReportListByName(ctx context.Context, name string) (models.MartinReportList, error) {
-	if f.getMartinReportListByName != nil {
-		return f.getMartinReportListByName(ctx, name)
-	}
-	return models.MartinReportList{}, nil
-}
-
-func (f *fakeCatalogStore) GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error) {
-	if f.getMartinReportProductsByReportID != nil {
-		return f.getMartinReportProductsByReportID(ctx, reportID)
-	}
-	return nil, nil
 }
 
 func requestWithRouteParams(method, target string, params map[string]string) *http.Request {
@@ -377,58 +353,4 @@ func TestCatalogHandlerGetImages(t *testing.T) {
 	}
 }
 
-func TestCatalogHandlerListMartinReports(t *testing.T) {
-	tests := []struct {
-		name       string
-		reports    []models.MartinReportList
-		storeError error
-		wantStatus int
-		wantError  string
-		wantBody   []dto.MartinReportListResponse
-	}{
-		{
-			name:       "multiple reports preserve order",
-			reports:    []models.MartinReportList{{Name: "Report A"}, {Name: "Report B"}},
-			wantStatus: http.StatusOK,
-			wantBody:   []dto.MartinReportListResponse{{Name: "Report A"}, {Name: "Report B"}},
-		},
-		{
-			name:       "zero reports become empty array",
-			reports:    []models.MartinReportList{},
-			wantStatus: http.StatusOK,
-			wantBody:   []dto.MartinReportListResponse{},
-		},
-		{
-			name:       "not found error",
-			storeError: repository.ErrNotFound,
-			wantStatus: http.StatusNotFound,
-			wantError:  "not found",
-		},
-		{
-			name:       "unexpected store error",
-			storeError: errors.New("database unavailable"),
-			wantStatus: http.StatusInternalServerError,
-			wantError:  "internal server error",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			store := &fakeCatalogStore{
-				getAllMartinReportLists: func(_ context.Context) ([]models.MartinReportList, error) {
-					return tt.reports, tt.storeError
-				},
-			}
-			h := NewCatalogHandler(store)
-			recorder := httptest.NewRecorder()
-			h.ListMartinReports(recorder, httptest.NewRequest(http.MethodGet, "/catalog/report/martin", nil))
-
-			if tt.wantError != "" {
-				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
-				return
-			}
-			assertJSONSuccess(t, recorder, tt.wantStatus, tt.wantBody)
-		})
-	}
-}
 

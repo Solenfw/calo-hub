@@ -32,12 +32,11 @@ type CatalogStore interface {
 	GetProductByCode(ctx context.Context, code string) (models.Products, error)
 	GetProductsByTerms(ctx context.Context, terms []string) ([]models.Products, error)
 	GetImagesByCode(ctx context.Context, code string) (models.Images, error)
-	GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error)
 }
 
 var _ CatalogStore = (*repository.CatalogRepository)(nil)
 
-// CatalogHandler serves catalog product, image, and list-oriented Martin report endpoints.
+// CatalogHandler serves catalog product and image endpoints.
 //
 // The caller is expected to provide a repository-level implementation of
 // CatalogStore, which keeps the handler focused on request parsing and response
@@ -137,27 +136,6 @@ func (h *CatalogHandler) GetImages(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, resp)
 }
 
-// ListMartinReports returns the available Martin report names as a lightweight
-// list payload. This endpoint is intentionally simple and does not expose the
-// internal report IDs to the client, only the metadata needed to navigate to the
-// details view or PDF route.
-func (h *CatalogHandler) ListMartinReports(w http.ResponseWriter, r *http.Request) {
-	reports, err := h.store.GetAllMartinReportLists(r.Context())
-	if err != nil {
-		writeRepositoryError(w, err)
-		return
-	}
-
-	resp := make([]dto.MartinReportListResponse, 0, len(reports))
-	for _, report := range reports {
-		resp = append(resp, dto.MartinReportListResponse{
-			Name: report.Name,
-		})
-	}
-
-	writeJSON(w, http.StatusOK, resp)
-}
-
 // toProductResponse keeps database model fields from leaking directly into the
 // public API response and preserves only the subset the client actually needs.
 func toProductResponse(product models.Products) dto.ProductResponse {
@@ -195,11 +173,8 @@ func writeJSON(w http.ResponseWriter, status int, payload any) {
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(payload)
 }
-
-
-func (h* CatalogHandler) RegisterRoutes(r chi.Router) {
+func (h *CatalogHandler) RegisterRoutes(r chi.Router) {
 	r.Get("/catalog/products", h.SearchProducts)
 	r.Get("/catalog/products/{code}", h.GetProductByCode)
 	r.Get("/catalog/images/{code}", h.GetImages)
-	r.Get("/catalog/report/martin", h.ListMartinReports)
 }
