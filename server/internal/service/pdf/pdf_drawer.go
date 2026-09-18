@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"image"
+	_ "embed"
 	_ "image/jpeg" // registers jpeg decoding for image.DecodeConfig
 	"io"
 	"math"
@@ -64,7 +65,7 @@ var (
 
 	descColW = colQtyX - colDescX - cm(0.3)
 
-	fontBody     = "Helvetica"
+	fontBody     = "Roboto"
 	fontBodySize = 10.5
 	lineHeight   = 14.0 // already points in the source script — unchanged
 
@@ -98,6 +99,10 @@ const (
 
 var httpClient = &http.Client{Timeout: imageFetchTimeout}
 
+//go:embed assets/Roboto-Regular.ttf
+var robotoRegularFontBytes []byte
+
+
 // ==============================================================================
 // ENTRY POINT
 // ==============================================================================
@@ -111,10 +116,14 @@ func GeneratePDF(ctx context.Context, companyName, reportName string, products [
 	if companyName == "" {
 		companyName = "BTM"
 	}
+	if len(robotoRegularFontBytes) == 0 {
+		return nil, fmt.Errorf("pdf font bytes missing: embedded Roboto font not loaded")
+	}
 
 	doc := fpdf.New("P", "pt", "A4", "")
 	doc.SetAutoPageBreak(false, 0) // pagination is handled manually below, same as the Python script's showPage() calls
-
+	doc.AddUTF8FontFromBytes("Roboto", "", robotoRegularFontBytes)
+	doc.AddUTF8FontFromBytes("Roboto", "B", robotoRegularFontBytes)
 	doc.AddPage()
 	y := drawHeader(doc, companyName, reportName)
 	for _, p := range products {
@@ -274,7 +283,7 @@ func drawHeader(doc *fpdf.Fpdf, companyName, categoryTitle string) float64 {
 // automatically. Returns the y for the next row.
 func drawProductRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float64, imageCache map[string][]byte, companyName, categoryTitle string) float64 {
 	doc.SetFont(fontBody, "", fontBodySize)
-	descLines := wrapTextByWidth(doc, product.Eng, descColW)
+	descLines := wrapTextByWidth(doc, product.Description, descColW)
 	textH := float64(len(descLines)) * lineHeight
 
 	var imgData []byte
@@ -377,7 +386,7 @@ func drawSummaryTableHeader(doc *fpdf.Fpdf, y float64) float64 {
 
 func drawSummaryRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float64, companyName string) float64 {
 	doc.SetFont(fontBody, "", fontBodySize)
-	descLines := wrapTextByWidth(doc, product.Eng, summaryDescColW)
+	descLines := wrapTextByWidth(doc, product.Description, summaryDescColW)
 	contentH := math.Max(float64(len(descLines)), 1) * lineHeight
 	rowH := contentH + 2*cellPadY
 
