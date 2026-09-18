@@ -27,9 +27,9 @@ export const navigationItems = [
     icon: Scan,
   },
   {
-    href: "/eselector",
-    label: "eSelector",
-    mobileLabel: "Select",
+    href: "/report",
+    label: "Report",
+    mobileLabel: "Report",
     icon: CheckSquare,
   },
 ] as const;

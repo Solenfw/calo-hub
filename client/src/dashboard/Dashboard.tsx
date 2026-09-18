@@ -97,7 +97,7 @@ export function Dashboard() {
           </div>
         </motion.div>
 
-        {/* eSelector Card */}
+        {/* Report Card */}
         <motion.div 
           whileHover={{ scale: 1.01 }}
             className="group lg:col-span-2 bg-primary text-on-primary p-8 rounded-xl shadow-[0_12px_40px_rgba(0,93,182,0.15)] flex items-center justify-between hover:bg-primary-dim transition-all duration-300 relative overflow-hidden"
@@ -106,10 +106,10 @@ export function Dashboard() {
             <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center mb-6">
               <CheckSquare className="w-6 h-6" />
             </div>
-            <h2 className="text-3xl font-bold mb-3">eSelector Tool</h2>
-            <p className="text-white/80 text-lg leading-relaxed">Our intelligent matching algorithm helps you find the exact medical component for specific surgical requirements.</p>
+            <h2 className="text-3xl font-bold mb-3">Report Studio</h2>
+            <p className="text-white/80 text-lg leading-relaxed">Manage Martin reports, edit instrument lists, and export final PDF packs for your clinical documentation workflow.</p>
             <div className="mt-8 inline-flex items-center gap-4 bg-white text-primary px-6 py-3 rounded-lg font-bold text-sm hover:-translate-y-0.5 transition-transform">
-              <Link href="/eselector">Launch eSelector</Link>
+              <Link href="/report">Open Report Studio</Link>
               <Rocket className="w-4 h-4" />
             </div>
           </div>

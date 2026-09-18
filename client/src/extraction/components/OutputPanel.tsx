@@ -22,7 +22,7 @@ OBSERVATIONS:
 3. No immediate secondary intervention required at this stage.
 
 NOTES:
-Review scheduled for follow-up in 14 days. Staff are advised to maintain current protocols and log all incremental shifts in the eSelector database.`;
+Review scheduled for follow-up in 14 days. Staff are advised to maintain current protocols and log all incremental shifts in the report database.`;
 
 export function OutputPanel({ activePage }: OutputPanelProps) {
   return (
@@ -69,7 +69,7 @@ export function OutputPanel({ activePage }: OutputPanelProps) {
               <div className="h-px grow bg-outline-variant/20" />
             </div>
             <textarea
-              className="w-full min-h-[25rem] border-none focus:ring-0 bg-transparent text-on-surface leading-loose font-body text-base resize-none outline-none"
+              className="w-full min-h-100 border-none focus:ring-0 bg-transparent text-on-surface leading-loose font-body text-base resize-none outline-none"
               spellCheck="false"
               defaultValue={extractedText}
             />
@@ -85,7 +85,7 @@ export function OutputPanel({ activePage }: OutputPanelProps) {
               <div className="h-px grow bg-outline-variant/20" />
             </div>
             <textarea
-              className="w-full min-h-[12.5rem] border-none focus:ring-0 bg-transparent text-on-surface/50 leading-loose font-body text-base resize-none italic outline-none"
+              className="w-full min-h-50 border-none focus:ring-0 bg-transparent text-on-surface/50 leading-loose font-body text-base resize-none italic outline-none"
               readOnly
               defaultValue="Loading extracted content for page 2...\nPlease select page in the left viewer to prioritize processing."
             />
