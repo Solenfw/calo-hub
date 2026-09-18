@@ -14,8 +14,7 @@ import (
 // errors through the application boundary.
 var ErrNotFound = errors.New("catalog item not found")
 
-// CatalogRepository reads catalog products, images, and Martin report data from
-// the PostgreSQL database.
+// CatalogRepository reads catalog products and images from the PostgreSQL database.
 //
 // The repository is intentionally responsible only for persistence and row-to-
 // struct mapping. HTTP code and business logic live in the handler layer, while
@@ -94,38 +93,6 @@ func (r *CatalogRepository) GetImagesByCode(ctx context.Context, code string) (m
 	return images, nil
 }
 
-// GetMartinReportListByName fetches one Martin report list by name.
-func (r *CatalogRepository) GetMartinReportListByName(ctx context.Context, reportName string) (models.MartinReportList, error) {
-	rows, err := r.pool.Query(ctx,
-		`SELECT id, name FROM martin_report_list WHERE name = $1`,
-		reportName,
-	)
-	if err != nil {
-		return models.MartinReportList{}, err
-	}
-	defer rows.Close()
-
-	report, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[models.MartinReportList])
-	if err != nil {
-		return models.MartinReportList{}, mapRepositoryError(err)
-	}
-
-	return report, nil
-}
-
-// GetAllMartinReportLists fetches all Martin report lists.
-func (r *CatalogRepository) GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error) {
-	rows, err := r.pool.Query(ctx,
-		`SELECT id, name FROM martin_report_list`,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	return pgx.CollectRows(rows, pgx.RowToStructByName[models.MartinReportList])
-}
-
 // mapRepositoryError normalizes storage errors for callers outside this package.
 func mapRepositoryError(err error) error {
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -133,48 +100,4 @@ func mapRepositoryError(err error) error {
 	}
 
 	return err
-}
-
-// GetMartinReportProductsByReportID fetches frozen report product snapshots in display order.
-// It returns ErrNotFound when the report does not exist and an empty slice when it exists without products.
-func (r *CatalogRepository) GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error) {
-	query := `
-		SELECT 
-			mrp.report_id,
-			mrp.row_no, 
-			mrp.code, 
-			mrp.eng,
-			mrp.image,
-			mrp.quantity 
-		FROM martin_report_products mrp
-		WHERE mrp.report_id = $1
-		ORDER BY mrp.row_no ASC;
-	`
-
-	rows, err := r.pool.Query(ctx, query, reportID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	products, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.MartinReportProduct])
-	if err != nil {
-		return nil, err
-	}
-	if len(products) > 0 {
-		return products, nil
-	}
-
-	var reportExists bool
-	if err := r.pool.QueryRow(ctx,
-		`SELECT EXISTS (SELECT 1 FROM martin_report_list WHERE id = $1)`,
-		reportID,
-	).Scan(&reportExists); err != nil {
-		return nil, err
-	}
-	if !reportExists {
-		return nil, ErrNotFound
-	}
-
-	return products, nil
 }
