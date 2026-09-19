@@ -99,8 +99,8 @@ func (r *ReportRepository) GetMartinReportProductsByReportID(ctx context.Context
 	return products, nil
 }
 
-// ReplaceMartinReportProducts replaces the full instrument snapshot for a report.
-func (r *ReportRepository) ReplaceMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error {
+// SetMartinReportProducts replaces the full instrument snapshot for a report.
+func (r *ReportRepository) SetMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error {
 	var reportExists bool
 	if err := r.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM martin_report_list WHERE id = $1)`, reportID).Scan(&reportExists); err != nil {
 		return err
@@ -142,5 +142,5 @@ var _ interface {
 	GetMartinReportProductsByReportID(context.Context, int) ([]models.MartinReportProduct, error)
 	CreateMartinReportList(context.Context, string) (models.MartinReportList, error)
 	DeleteMartinReportList(context.Context, int) error
-	ReplaceMartinReportProducts(context.Context, int, []models.MartinReportProduct) error
+	SetMartinReportProducts(context.Context, int, []models.MartinReportProduct) error
 } = (*ReportRepository)(nil)

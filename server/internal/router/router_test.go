@@ -75,8 +75,8 @@ func (s *recordingCatalogStore) DeleteMartinReportList(_ context.Context, report
 	return nil
 }
 
-func (s *recordingCatalogStore) ReplaceMartinReportProducts(_ context.Context, reportID int, products []models.MartinReportProduct) error {
-	s.called = "ReplaceMartinReportProducts"
+func (s *recordingCatalogStore) SetMartinReportProducts(_ context.Context, reportID int, products []models.MartinReportProduct) error {
+	s.called = "SetMartinReportProducts"
 	s.reportID = reportID
 	return nil
 }

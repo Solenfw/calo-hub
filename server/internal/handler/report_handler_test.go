@@ -21,7 +21,7 @@ type fakeReportStore struct {
 	getMartinReportProductsByReportID func(context.Context, int) ([]models.MartinReportProduct, error)
 	createMartinReportList            func(context.Context, string) (models.MartinReportList, error)
 	deleteMartinReportList            func(context.Context, int) error
-	replaceMartinReportProducts       func(context.Context, int, []models.MartinReportProduct) error
+	setMartinReportProducts       func(context.Context, int, []models.MartinReportProduct) error
 }
 
 func (f *fakeReportStore) GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error) {
@@ -59,9 +59,9 @@ func (f *fakeReportStore) DeleteMartinReportList(ctx context.Context, reportID i
 	return nil
 }
 
-func (f *fakeReportStore) ReplaceMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error {
-	if f.replaceMartinReportProducts != nil {
-		return f.replaceMartinReportProducts(ctx, reportID, products)
+func (f *fakeReportStore) SetMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error {
+	if f.setMartinReportProducts != nil {
+		return f.setMartinReportProducts(ctx, reportID, products)
 	}
 	return nil
 }
@@ -306,7 +306,7 @@ func TestReportHandlerDeleteMartinReport(t *testing.T) {
 
 func TestReportHandlerUpdateMartinReportProducts(t *testing.T) {
 	store := &fakeReportStore{
-		replaceMartinReportProducts: func(_ context.Context, reportID int, products []models.MartinReportProduct) error {
+		setMartinReportProducts: func(_ context.Context, reportID int, products []models.MartinReportProduct) error {
 			if reportID != 7 {
 				t.Fatalf("report ID = %d, want 7", reportID)
 			}

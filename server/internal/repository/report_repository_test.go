@@ -166,8 +166,8 @@ func TestReportRepositoryCRUD(t *testing.T) {
 			{ReportID: fixtures.reportWithProductsID, RowNo: 1, Code: "P-003", Description: "Beta Retractor", Quantity: 5},
 			{ReportID: fixtures.reportWithProductsID, RowNo: 2, Code: "P-001", Description: "Live Alpha Clamp", Quantity: 1},
 		}
-		if err := repo.ReplaceMartinReportProducts(ctx, fixtures.reportWithProductsID, products); err != nil {
-			t.Fatalf("ReplaceMartinReportProducts() error = %v", err)
+		if err := repo.SetMartinReportProducts(ctx, fixtures.reportWithProductsID, products); err != nil {
+			t.Fatalf("SetMartinReportProducts() error = %v", err)
 		}
 		got, err := repo.GetMartinReportProductsByReportID(ctx, fixtures.reportWithProductsID)
 		if err != nil {
@@ -177,8 +177,8 @@ func TestReportRepositoryCRUD(t *testing.T) {
 			t.Fatalf("products = %#v, want %#v", got, products)
 		}
 
-		if err := repo.ReplaceMartinReportProducts(ctx, fixtures.reportWithProductsID, nil); err != nil {
-			t.Fatalf("ReplaceMartinReportProducts(empty) error = %v", err)
+		if err := repo.SetMartinReportProducts(ctx, fixtures.reportWithProductsID, nil); err != nil {
+			t.Fatalf("SetMartinReportProducts(empty) error = %v", err)
 		}
 		got, err = repo.GetMartinReportProductsByReportID(ctx, fixtures.reportWithProductsID)
 		if err != nil || len(got) != 0 {
@@ -207,8 +207,8 @@ func TestReportRepositoryCRUD(t *testing.T) {
 		if err := repo.DeleteMartinReportList(ctx, 99999); !errors.Is(err, ErrNotFound) {
 			t.Fatalf("DeleteMartinReportList() error = %v, want ErrNotFound", err)
 		}
-		if err := repo.ReplaceMartinReportProducts(ctx, 99999, nil); !errors.Is(err, ErrNotFound) {
-			t.Fatalf("ReplaceMartinReportProducts() error = %v, want ErrNotFound", err)
+		if err := repo.SetMartinReportProducts(ctx, 99999, nil); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("SetMartinReportProducts() error = %v, want ErrNotFound", err)
 		}
 	})
 }

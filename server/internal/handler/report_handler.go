@@ -34,7 +34,7 @@ type ReportStore interface {
 	GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error)
 	CreateMartinReportList(ctx context.Context, name string) (models.MartinReportList, error)
 	DeleteMartinReportList(ctx context.Context, reportID int) error
-	ReplaceMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error
+	SetMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error
 }
 
 var _ ReportStore = (*repository.ReportRepository)(nil)
@@ -208,7 +208,7 @@ func (h *ReportHandler) UpdateMartinReportProducts(w http.ResponseWriter, r *htt
 		}
 	}
 
-	if err := h.store.ReplaceMartinReportProducts(r.Context(), id, products); err != nil {
+	if err := h.store.SetMartinReportProducts(r.Context(), id, products); err != nil {
 		writeRepositoryError(w, err)
 		return
 	}
