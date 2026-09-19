@@ -23,9 +23,6 @@ import (
 // main boots the application by creating the database pool, wiring the
 // repository and handlers, and starting the HTTP server with the router and request logger.
 func main() {
-	homeDir, _ := os.UserHomeDir()
-	_ = godotenv.Load(homeDir + "/.config/secrets/calohub/.env")
-
 	// wire config, db pool, router, start http server
 	pool, err := db.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
