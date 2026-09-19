@@ -286,7 +286,6 @@ export function Report() {
             <thead className="bg-surface-container-high text-xs uppercase tracking-[0.12em] text-on-surface-variant">
               <tr>
                 <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Instruments</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -299,7 +298,6 @@ export function Report() {
                 </tr>
               ) : (
                 reports.map((report) => {
-                  const reportInstrumentCount = report.id === selectedReportId ? instruments.length : 0;
                   const isSelected = report.id === selectedReportId;
 
                   return (
@@ -312,9 +310,6 @@ export function Report() {
                         onClick={() => void selectReport(report)}
                       >
                         {report.name}
-                      </td>
-                      <td className="px-4 py-3 text-on-surface-variant">
-                        {reportInstrumentCount} rows
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
@@ -386,7 +381,7 @@ export function Report() {
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={saving}
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-3 font-bold text-on-primary disabled:opacity-60"
+                className="cursor-pointer flex items-center gap-2 rounded-lg bg-primary px-4 py-3 font-bold text-on-primary disabled:opacity-60"
               >
                 <Save className="h-4 w-4" />
                 {saving ? "Saving..." : "Save"}
@@ -402,6 +397,7 @@ export function Report() {
               <table className="w-full border-collapse text-sm text-on-surface">
                 <thead className="bg-surface-container-high text-xs uppercase tracking-[0.12em] text-on-surface-variant">
                   <tr>
+                    <th className="px-3 py-2">No.</th>
                     <th className="px-3 py-2">Code</th>
                     <th className="px-3 py-2">Description</th>
                     <th className="px-3 py-2">Qty</th>
@@ -418,6 +414,12 @@ export function Report() {
                   ) : (
                     instruments.map((instrument, index) => (
                       <tr key={`${instrument.code}-${index}`} className="border-t border-outline-variant/50">
+                        <td className="px-3 py-2 w-0">
+                          <input readOnly
+                            value={instrument.row_no ?? ""}
+                            className="w-min px-0 py-2"
+                          />
+                        </td>
                         <td className="px-3 py-2">
                           <input
                             value={instrument.code ?? ""}
