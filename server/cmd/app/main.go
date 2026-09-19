@@ -27,7 +27,7 @@ func main() {
 	_ = godotenv.Load(homeDir + "/.config/secrets/calohub/.env")
 
 	// wire config, db pool, router, start http server
-	pool, err := db.Connect(context.Background(), os.Getenv("GOOSE_DBSTRING"))
+	pool, err := db.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("db connect failed: %v", err)
 	}
