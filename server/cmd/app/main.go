@@ -13,7 +13,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/solenfw/calo-hub/internal/db"
 	"github.com/solenfw/calo-hub/internal/handler"
 	"github.com/solenfw/calo-hub/internal/repository"
