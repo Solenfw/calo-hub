@@ -10,20 +10,26 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/solenfw/calo-hub/internal/db"
 	"github.com/solenfw/calo-hub/internal/handler"
 	"github.com/solenfw/calo-hub/internal/repository"
 	"github.com/solenfw/calo-hub/internal/router"
+	"github.com/solenfw/calo-hub/internal/config"
 )
 
 // main boots the application by creating the database pool, wiring the
 // repository and handlers, and starting the HTTP server with the router and request logger.
 func main() {
 	// wire config, db pool, router, start http server
-	pool, err := db.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	cfg, err := config.Load()
+
+	if err != nil {
+		log.Fatalf("config error: %s", err)
+	}
+
+	pool, err := db.Connect(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("db connect failed: %v", err)
 	}
@@ -37,12 +43,13 @@ func main() {
 	r := router.New(catalogHandler, reportHandler)
 
 	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", loggingMiddleware(r)); err != nil {
+	if err := http.ListenAndServe( ":" + cfg.Port, loggingMiddleware(r)); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 
 	pool.Close()
 }
+
 // responseRecorder is a custom wrapper to capture the HTTP status code.
 type responseRecorder struct {
 	http.ResponseWriter
