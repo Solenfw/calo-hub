@@ -19,7 +19,7 @@ type Config struct {
 
 // Load reads configuration values and returns a populated Config instance.
 func Load() (*Config, error) {
-	dbURL := os.Getenv("DATBASE_URL")
+	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		dbURL = os.Getenv("SUPABASE_DATABASE_URL")
 	}
