@@ -278,7 +278,7 @@ func (h *ReportHandler) GetMartinReport(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	pdfBytes, err := pdf.GeneratePDF(r.Context(), "BTM", report.Name, products)
+	pdfBytes, err := pdf.GeneratePDF(r.Context(), "", report.Name, products)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to generate PDF")
 		return

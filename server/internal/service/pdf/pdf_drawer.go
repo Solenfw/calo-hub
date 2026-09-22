@@ -113,9 +113,6 @@ var robotoRegularFontBytes []byte
 // in this package.
 func GeneratePDF(ctx context.Context, companyName, reportName string, products []models.MartinReportProduct) ([]byte, error) {
 	imageCache := prefetchImages(ctx, products)
-	if companyName == "" {
-		companyName = "BTM"
-	}
 	if len(robotoRegularFontBytes) == 0 {
 		return nil, fmt.Errorf("pdf font bytes missing: embedded Roboto font not loaded")
 	}
@@ -127,7 +124,7 @@ func GeneratePDF(ctx context.Context, companyName, reportName string, products [
 	doc.AddPage()
 	y := drawHeader(doc, companyName, reportName)
 	for _, p := range products {
-		y = drawProductRow(doc, p, y, imageCache, companyName, reportName)
+		y = drawProductRow(doc, p, y, imageCache)
 	}
 
 	doc.AddPage()
@@ -281,7 +278,7 @@ func drawHeader(doc *fpdf.Fpdf, companyName, categoryTitle string) float64 {
 
 // drawProductRow draws one detailed product row at y, handling page breaks
 // automatically. Returns the y for the next row.
-func drawProductRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float64, imageCache map[string][]byte, companyName, categoryTitle string) float64 {
+func drawProductRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float64, imageCache map[string][]byte) float64 {
 	doc.SetFont(fontBody, "", fontBodySize)
 	descLines := wrapTextByWidth(doc, product.Description, descColW)
 	textH := float64(len(descLines)) * lineHeight
@@ -314,7 +311,7 @@ func drawProductRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float6
 
 	if y+rowBlockH > pageH-marginBottom {
 		doc.AddPage()
-		y = drawHeader(doc, companyName, categoryTitle)
+		y = drawHeader(doc, "", "")
 	}
 
 	doc.SetTextColor(0, 0, 0)
@@ -392,7 +389,7 @@ func drawSummaryRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float6
 
 	if y+rowH > pageH-marginBottom {
 		doc.AddPage()
-		y = drawHeader(doc, companyName, "Summary")
+		y = drawHeader(doc, companyName, "")
 		y = drawSummaryTableHeader(doc, y)
 	}
 
