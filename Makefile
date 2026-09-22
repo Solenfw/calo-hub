@@ -27,7 +27,7 @@ vet:
 	cd server && go vet ./...
 
 build:
-	cd server && go build -o app ./cmd/app/
+	cd server && go build ./...
 
 fmt:
 	cd server && gofmt -l . && goimports -l .
