@@ -14,6 +14,9 @@ compose:
 down:
 	docker compose down
 
+migrate-create:
+	goose create $(name) sql
+
 migrate-up:
 	goose "$(DATABASE_URL)" up
 
