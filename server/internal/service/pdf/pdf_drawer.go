@@ -127,12 +127,13 @@ func GeneratePDF(ctx context.Context, companyName, reportName string, products [
 		y = drawProductRow(doc, p, y, imageCache)
 	}
 
-	doc.AddPage()
-	y = drawHeader(doc, companyName, "Summary")
-	y = drawSummaryTableHeader(doc, y)
-	for _, p := range products {
-		y = drawSummaryRow(doc, p, y, companyName)
-	}
+	// add summary table.
+	// doc.AddPage()
+	// y = drawHeader(doc, companyName, "Summary")
+	// y = drawSummaryTableHeader(doc, y)
+	// for _, p := range products {
+	// 	y = drawSummaryRow(doc, p, y, companyName)
+	// }
 
 	var buf bytes.Buffer
 	if err := doc.Output(&buf); err != nil {
