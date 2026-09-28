@@ -2,6 +2,8 @@ services:
   db:
     image: postgres:17
     container_name: calo_hub_db
+    env_file:
+      - ${HOME}/.config/secrets/calohub/.env
     environment:
       POSTGRES_USER: ${GOOSE_USER}
       POSTGRES_PASSWORD: ${GOOSE_PASSWORD}
@@ -11,12 +13,20 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${GOOSE_USER} -d ${GOOSE_DB} || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     env_file:
-      - ~/.config/secrets/calohub/.env
+      - ${HOME}/.config/secrets/calohub/.env
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

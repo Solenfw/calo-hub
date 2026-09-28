@@ -1,0 +1,15 @@
+.git
+.idea
+.agents
+.codex
+.uv-cache
+__pycache__
+**/.env
+**/.env.*
+!.env.example
+
+client
+
+server/app
+server/temp.*
+server/data/csv
