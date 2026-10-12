@@ -20,21 +20,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     return payload as T;
 }
 
-/** GET /report/martin */
+/** GET /report/ */
 export const listMartinReports = async (): Promise<MartinReportListResponse[]> => {
     try {
-        return await request<MartinReportListResponse[]>('/report/martin');
+        return await request<MartinReportListResponse[]>('/report/');
     } catch (error) {
         console.error('Error fetching Martin reports:', error);
         return [];
     }
 };
 
-/** POST /report/martin */
+/** POST /report/ */
 export const createMartinReport = async (name: string): Promise<MartinReportListResponse | null> => {
     try {
         const payload: CreateMartinReportRequest = { name };
-        return await request<MartinReportListResponse>('/report/martin', {
+        return await request<MartinReportListResponse>('/report/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),

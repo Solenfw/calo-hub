@@ -25,12 +25,12 @@ The server listens on `:8080` and logs each request status/method/path.
 GET /catalog/products?q=...
 GET /catalog/products/{code}
 GET /catalog/images/{code}
-GET /report/martin
+GET /report/
 GET /report/template
 GET /report/{name}
 GET /report/all/{report_id}
 GET /report/{name}/pdf
-POST /report/martin
+POST /report/
 PUT /report/{report_id}/products
 DELETE /report/{report_id}
 ```

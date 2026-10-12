@@ -332,10 +332,10 @@ func (h *ReportHandler) DownloadImportTemplate(w http.ResponseWriter, r *http.Re
 }
 
 func (h *ReportHandler) RegisterRoutes(r chi.Router) {
-	r.Get("/report/martin", h.ListMartinReports)
+	r.Get("/report/", h.ListMartinReports)
 	r.Get("/report/template", h.DownloadImportTemplate)
 	r.Get("/report/{name}", h.GetMartinReportByName)
-	r.Post("/report/martin", h.CreateMartinReport)
+	r.Post("/report/", h.CreateMartinReport)
 	r.Delete("/report/{report_id}", h.DeleteMartinReport)
 	r.Put("/report/{report_id}/products", h.UpdateReportProducts)
 	r.Get("/report/{name}/pdf", h.GetMartinReport)

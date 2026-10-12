@@ -65,12 +65,12 @@ The client uses Go API routes such as:
 GET /catalog/products?q=...
 GET /catalog/products/{code}
 GET /catalog/images/{code}
-GET /report/martin
+GET /report/
 GET /report/{name}
 GET /report/all/{report_id}
 GET /report/{name}/pdf
 GET /report/template
-POST /report/martin
+POST /report/
 PUT /report/{report_id}/products
 DELETE /report/{report_id}
 ```

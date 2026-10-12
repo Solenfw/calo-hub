@@ -133,7 +133,7 @@ func TestReportHandlerListMartinReports(t *testing.T) {
 	}
 	h := NewReportHandler(store)
 	recorder := httptest.NewRecorder()
-	h.ListMartinReports(recorder, httptest.NewRequest(http.MethodGet, "/report/martin", nil))
+	h.ListMartinReports(recorder, httptest.NewRequest(http.MethodGet, "/report/", nil))
 
 	assertJSONSuccess(t, recorder, http.StatusOK, []dto.MartinReportListResponse{
 		{ID: 1, Name: "Report A"},
@@ -261,7 +261,7 @@ func TestReportHandlerCreateMartinReport(t *testing.T) {
 		h := NewReportHandler(store)
 		recorder := httptest.NewRecorder()
 		body := `{"name":"   "}`
-		req := httptest.NewRequest(http.MethodPost, "/report/martin", strings.NewReader(body))
+		req := httptest.NewRequest(http.MethodPost, "/report/", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 
 		h.CreateMartinReport(recorder, req)
@@ -279,7 +279,7 @@ func TestReportHandlerCreateMartinReport(t *testing.T) {
 		}
 		h := NewReportHandler(store)
 		recorder := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodPost, "/report/martin", strings.NewReader(`{"name":"New Report"}`))
+		req := httptest.NewRequest(http.MethodPost, "/report/", strings.NewReader(`{"name":"New Report"}`))
 		req.Header.Set("Content-Type", "application/json")
 
 		h.CreateMartinReport(recorder, req)

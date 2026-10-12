@@ -116,7 +116,7 @@ func TestNewRoutesDispatchToExpectedHandler(t *testing.T) {
 		},
 		{
 			name:       "Martin report list route",
-			path:       "/report/martin",
+			path:       "/report/",
 			wantCalled: "GetAllMartinReportLists",
 		},
 		{
