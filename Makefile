@@ -3,14 +3,15 @@
 # Local secrets/configuration are optional. `make` also reads variables from
 # the invoking shell, so CI can provide these without a local secrets file.
 -include $(HOME)/.config/secrets/calohub/.env
-export
+export DATABASE_URL, SUPABASE_DATABASE_URL
 
 # Override these on the command line when using a different setup, e.g.
 # `make migrate-up MIGRATIONS_DIR=server/migrations GOOSE=goose`.
 GOOSE ?= goose
-GOOSE_DRIVER ?= postgres
+DB_DRIVER ?= postgres
 MIGRATIONS_DIR ?= server/migrations
 DB_URL ?= $(if $(strip $(DATABASE_URL)),$(DATABASE_URL),$(GOOSE_DBSTRING))
+SUPABASE_DB_URL ?= $(SUPABASE_DATABASE_URL)
 GO_VERSION_PACKAGE := ./...
 SERVER_BINARY ?= dist/calo-hub
 
@@ -35,10 +36,10 @@ help:
 	@echo '  down                   Stop Compose services'
 	@echo '  migrate-create         Create SQL migration (use name=description)'
 	@echo '  migrate-create-go      Create Go migration (use name=description)'
-	@echo '  migrate-up             Apply all pending migrations'
+	@echo '  migrate-up             Apply all pending migrations to local and Supabase DBs'
 	@echo '  migrate-up-by-one      Apply the next pending migration'
 	@echo '  migrate-up-to          Apply migrations through version (use version=N)'
-	@echo '  migrate-down           Roll back the most recent migration'
+	@echo '  migrate-down           Roll back the most recent migration on both DBs'
 	@echo '  migrate-down-to        Roll back to version (use version=N)'
 	@echo '  migrate-down-all       Roll back all migrations (destructive)'
 	@echo '  migrate-redo           Re-run the most recent migration'
@@ -57,7 +58,7 @@ help:
 	@echo '  build-client           Build the Next.js frontend'
 	@echo '  clean                  Remove generated Go build output'
 	@echo ''
-	@echo 'Migration connection: DATABASE_URL (or GOOSE_DBSTRING); driver: GOOSE_DRIVER.'
+	@echo 'Migration connections: DATABASE_URL (or GOOSE_DBSTRING) for local; SUPABASE_DATABASE_URL for Supabase.'
 	@echo 'Goose CLI: $(GOOSE); migration directory: $(MIGRATIONS_DIR).'
 
 ## Run the API using the current shell environment and local Go modules.
@@ -93,7 +94,8 @@ down:
 	docker compose down
 
 # Goose always receives an explicit migration directory and dialect. The
-# database URL is taken from DATABASE_URL first, then GOOSE_DBSTRING.
+# local database URL is DATABASE_URL (or GOOSE_DBSTRING); Supabase uses its
+# separate SUPABASE_DATABASE_URL. Up/down operate on both databases.
 ## Create a timestamped SQL migration; provide the suffix with `name=...`.
 migrate-create:
 	@test -n "$(strip $(name))" || { echo 'Usage: make migrate-create name=add_products' >&2; exit 2; }
@@ -106,55 +108,65 @@ migrate-create-go:
 
 ## Apply all pending database migrations.
 migrate-up:
-	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" up
+	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL (local Compose DB) or GOOSE_DBSTRING before migrating.' >&2; exit 2; }
+	@test -n "$(strip $(SUPABASE_DB_URL))" || { echo 'Set SUPABASE_DATABASE_URL before migrating both databases.' >&2; exit 2; }
+	@test "$(DB_URL)" != "$(SUPABASE_DB_URL)" || { echo 'Local and Supabase database URLs must be different.' >&2; exit 2; }
+	@echo 'Applying migrations to local PostgreSQL...'
+	@$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" up
+	@echo 'Applying migrations to Supabase PostgreSQL...'
+	@$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(SUPABASE_DB_URL)" up
 
 ## Apply only the next pending database migration.
 migrate-up-by-one:
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" up-by-one
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" up-by-one
 
 ## Apply migrations through the requested version; provide `version=N`.
 migrate-up-to:
 	@test -n "$(strip $(version))" || { echo 'Usage: make migrate-up-to version=20260907221330' >&2; exit 2; }
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" up-to "$(version)"
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" up-to "$(version)"
 
 ## Roll back the most recently applied database migration.
 migrate-down:
-	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" down
+	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL (local Compose DB) or GOOSE_DBSTRING before migrating.' >&2; exit 2; }
+	@test -n "$(strip $(SUPABASE_DB_URL))" || { echo 'Set SUPABASE_DATABASE_URL before migrating both databases.' >&2; exit 2; }
+	@test "$(DB_URL)" != "$(SUPABASE_DB_URL)" || { echo 'Local and Supabase database URLs must be different.' >&2; exit 2; }
+	@echo 'Rolling back the latest migration on local PostgreSQL...'
+	@$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" down
+	@echo 'Rolling back the latest migration on Supabase PostgreSQL...'
+	@$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(SUPABASE_DB_URL)" down
 
 ## Roll back until the database reaches the requested migration version.
 migrate-down-to:
 	@test -n "$(strip $(version))" || { echo 'Usage: make migrate-down-to version=20260907221330' >&2; exit 2; }
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" down-to "$(version)"
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" down-to "$(version)"
 
 ## Roll back every applied migration. This drops the project schema/data.
 migrate-down-all:
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" down-to 0
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" down-to 0
 
 ## Roll back and then re-apply the latest migration.
 migrate-redo:
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" redo
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" redo
 
 ## Roll back all migrations and apply them again; all schema data is lost.
 migrate-reset:
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before running migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" reset
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" reset
 
 ## List database migration status, including pending files.
 migrate-status:
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before checking migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" status
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" status
 
 ## Print the database's current migration version.
 migrate-version:
 	@test -n "$(strip $(DB_URL))" || { echo 'Set DATABASE_URL or GOOSE_DBSTRING before checking migrations.' >&2; exit 2; }
-	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(GOOSE_DRIVER)" "$(DB_URL)" version
+	$(GOOSE) -dir "$(MIGRATIONS_DIR)" "$(DB_DRIVER)" "$(DB_URL)" version
 
 ## Validate migration SQL/Go files without connecting to the database.
 migrate-validate:
