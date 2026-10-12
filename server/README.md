@@ -26,13 +26,13 @@ GET /catalog/products?q=...
 GET /catalog/products/{code}
 GET /catalog/images/{code}
 GET /report/martin
-GET /report/martin/template
-GET /report/martin/{name}
-GET /report/martin/all/{report_id}
-GET /report/martin/{name}/pdf
+GET /report/template
+GET /report/{name}
+GET /report/all/{report_id}
+GET /report/{name}/pdf
 POST /report/martin
-PUT /report/martin/{report_id}/products
-DELETE /report/martin/{report_id}
+PUT /report/{report_id}/products
+DELETE /report/{report_id}
 ```
 
 The report handler resolves product images internally when a snapshot row has no image URL and then generates the PDF using the embedded Roboto font asset.

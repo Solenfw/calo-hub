@@ -66,13 +66,13 @@ GET /catalog/products?q=...
 GET /catalog/products/{code}
 GET /catalog/images/{code}
 GET /report/martin
-GET /report/martin/{name}
-GET /report/martin/all/{report_id}
-GET /report/martin/{name}/pdf
-GET /report/martin/template
+GET /report/{name}
+GET /report/all/{report_id}
+GET /report/{name}/pdf
+GET /report/template
 POST /report/martin
-PUT /report/martin/{report_id}/products
-DELETE /report/martin/{report_id}
+PUT /report/{report_id}/products
+DELETE /report/{report_id}
 ```
 
 The response models in `src/types` align with the backend DTO output and include the Martin report product shape used by the report table.

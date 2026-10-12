@@ -109,9 +109,9 @@ var robotoRegularFontBytes []byte
 
 // GeneratePDF renders a Martin report as a PDF: a detailed per-product page
 // followed by a condensed summary table. Takes already-fetched product rows
-// (via repository.GetMartinReportProductsByReportID) — no DB access happens
+// (via repository.GetReportProductsByReportID) — no DB access happens
 // in this package.
-func GeneratePDF(ctx context.Context, companyName, reportName string, products []models.MartinReportProduct) ([]byte, error) {
+func GeneratePDF(ctx context.Context, companyName, reportName string, products []models.ReportProduct) ([]byte, error) {
 	imageCache := prefetchImages(ctx, products)
 	if len(robotoRegularFontBytes) == 0 {
 		return nil, fmt.Errorf("pdf font bytes missing: embedded Roboto font not loaded")
@@ -150,7 +150,7 @@ func GeneratePDF(ctx context.Context, companyName, reportName string, products [
 // worker pool, same pattern as cmd/migrate-images-local's download loop) and
 // returns a url -> bytes cache. A failed fetch is cached as an explicit nil
 // entry so drawProductRow treats it as "no image" instead of retrying.
-func prefetchImages(ctx context.Context, products []models.MartinReportProduct) map[string][]byte {
+func prefetchImages(ctx context.Context, products []models.ReportProduct) map[string][]byte {
 	urlSet := make(map[string]struct{})
 	for _, p := range products {
 		if p.Image != nil && *p.Image != "" {
@@ -279,7 +279,7 @@ func drawHeader(doc *fpdf.Fpdf, companyName, categoryTitle string) float64 {
 
 // drawProductRow draws one detailed product row at y, handling page breaks
 // automatically. Returns the y for the next row.
-func drawProductRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float64, imageCache map[string][]byte) float64 {
+func drawProductRow(doc *fpdf.Fpdf, product models.ReportProduct, y float64, imageCache map[string][]byte) float64 {
 	doc.SetFont(fontBody, "", fontBodySize)
 	descLines := wrapTextByWidth(doc, product.Description, descColW)
 	textH := float64(len(descLines)) * lineHeight
@@ -382,7 +382,7 @@ func drawSummaryTableHeader(doc *fpdf.Fpdf, y float64) float64 {
 	return bottomY
 }
 
-func drawSummaryRow(doc *fpdf.Fpdf, product models.MartinReportProduct, y float64, companyName string) float64 {
+func drawSummaryRow(doc *fpdf.Fpdf, product models.ReportProduct, y float64, companyName string) float64 {
 	doc.SetFont(fontBody, "", fontBodySize)
 	descLines := wrapTextByWidth(doc, product.Description, summaryDescColW)
 	contentH := math.Max(float64(len(descLines)), 1) * lineHeight

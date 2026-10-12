@@ -27,8 +27,8 @@ type MartinReportList struct {
 	Name string `db:"name" json:"name"`
 }
 
-// MartinReportProduct represents a product row within a Martin report.
-type MartinReportProduct struct {
+// ReportProduct represents a product row within a Martin report.
+type ReportProduct struct {
 	ReportID 		int     `db:"report_id" json:"report_id"`
 	RowNo    		int     `db:"row_no" json:"row_no"`
 	Code   			string  `db:"code" json:"code"`

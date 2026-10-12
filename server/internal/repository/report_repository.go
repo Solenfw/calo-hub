@@ -21,7 +21,7 @@ func NewReportRepository(pool *pgxpool.Pool) *ReportRepository {
 
 // GetMartinReportListByName fetches one Martin report list by name.
 func (r *ReportRepository) GetMartinReportListByName(ctx context.Context, reportName string) (models.MartinReportList, error) {
-	rows, err := r.pool.Query(ctx, `SELECT id, name FROM martin_report_list WHERE name = $1`, reportName)
+	rows, err := r.pool.Query(ctx, `SELECT id, name FROM report_list WHERE name = $1`, reportName)
 	if err != nil {
 		return models.MartinReportList{}, err
 	}
@@ -36,7 +36,7 @@ func (r *ReportRepository) GetMartinReportListByName(ctx context.Context, report
 
 // GetAllMartinReportLists fetches all Martin report lists.
 func (r *ReportRepository) GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error) {
-	rows, err := r.pool.Query(ctx, `SELECT id, name FROM martin_report_list`)
+	rows, err := r.pool.Query(ctx, `SELECT id, name FROM report_list`)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (r *ReportRepository) GetAllMartinReportLists(ctx context.Context) ([]model
 func (r *ReportRepository) CreateMartinReportList(ctx context.Context, reportName string) (models.MartinReportList, error) {
 	var report models.MartinReportList
 	if err := r.pool.QueryRow(ctx,
-		`INSERT INTO martin_report_list (name) VALUES ($1) RETURNING id, name`, reportName,
+		`INSERT INTO report_list (name) VALUES ($1) RETURNING id, name`, reportName,
 	).Scan(&report.ID, &report.Name); err != nil {
 		return models.MartinReportList{}, err
 	}
@@ -58,7 +58,7 @@ func (r *ReportRepository) CreateMartinReportList(ctx context.Context, reportNam
 
 // DeleteMartinReportList removes a report and all of its linked product rows.
 func (r *ReportRepository) DeleteMartinReportList(ctx context.Context, reportID int) error {
-	result, err := r.pool.Exec(ctx, `DELETE FROM martin_report_list WHERE id = $1`, reportID)
+	result, err := r.pool.Exec(ctx, `DELETE FROM report_list WHERE id = $1`, reportID)
 	if err != nil {
 		return err
 	}
@@ -68,12 +68,12 @@ func (r *ReportRepository) DeleteMartinReportList(ctx context.Context, reportID 
 	return nil
 }
 
-// GetMartinReportProductsByReportID fetches frozen report product snapshots in display order.
+// GetReportProductsByReportID fetches frozen report product snapshots in display order.
 // It returns ErrNotFound when the report does not exist and an empty slice when it has no products.
-func (r *ReportRepository) GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error) {
+func (r *ReportRepository) GetReportProductsByReportID(ctx context.Context, reportID int) ([]models.ReportProduct, error) {
 	rows, err := r.pool.Query(ctx, `
 		SELECT report_id, row_no, code, description, image, quantity
-		FROM martin_report_products
+		FROM report_products
 		WHERE report_id = $1
 		ORDER BY row_no ASC`, reportID)
 	if err != nil {
@@ -81,7 +81,7 @@ func (r *ReportRepository) GetMartinReportProductsByReportID(ctx context.Context
 	}
 	defer rows.Close()
 
-	products, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.MartinReportProduct])
+	products, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.ReportProduct])
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (r *ReportRepository) GetMartinReportProductsByReportID(ctx context.Context
 	}
 
 	var reportExists bool
-	if err := r.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM martin_report_list WHERE id = $1)`, reportID).Scan(&reportExists); err != nil {
+	if err := r.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM report_list WHERE id = $1)`, reportID).Scan(&reportExists); err != nil {
 		return nil, err
 	}
 	if !reportExists {
@@ -99,10 +99,10 @@ func (r *ReportRepository) GetMartinReportProductsByReportID(ctx context.Context
 	return products, nil
 }
 
-// SetMartinReportProducts replaces the full instrument snapshot for a report.
-func (r *ReportRepository) SetMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error {
+// SetReportProducts replaces the full instrument snapshot for a report.
+func (r *ReportRepository) SetReportProducts(ctx context.Context, reportID int, products []models.ReportProduct) error {
 	var reportExists bool
-	if err := r.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM martin_report_list WHERE id = $1)`, reportID).Scan(&reportExists); err != nil {
+	if err := r.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM report_list WHERE id = $1)`, reportID).Scan(&reportExists); err != nil {
 		return err
 	}
 	if !reportExists {
@@ -110,15 +110,15 @@ func (r *ReportRepository) SetMartinReportProducts(ctx context.Context, reportID
 	}
 
 	if len(products) == 0 {
-		_, err := r.pool.Exec(ctx, `DELETE FROM martin_report_products WHERE report_id = $1`, reportID)
+		_, err := r.pool.Exec(ctx, `DELETE FROM report_products WHERE report_id = $1`, reportID)
 		return err
 	}
 
 	batch := &pgx.Batch{}
-	batch.Queue(`DELETE FROM martin_report_products WHERE report_id = $1`, reportID)
+	batch.Queue(`DELETE FROM report_products WHERE report_id = $1`, reportID)
 	for _, product := range products {
 		batch.Queue(
-			`INSERT INTO martin_report_products (report_id, row_no, code, description, image, quantity) VALUES ($1, $2, $3, $4, $5, $6)`,
+			`INSERT INTO report_products (report_id, row_no, code, description, image, quantity) VALUES ($1, $2, $3, $4, $5, $6)`,
 			reportID, product.RowNo, product.Code, product.Description, product.Image, product.Quantity,
 		)
 	}
@@ -139,8 +139,8 @@ func (r *ReportRepository) SetMartinReportProducts(ctx context.Context, reportID
 var _ interface {
 	GetMartinReportListByName(context.Context, string) (models.MartinReportList, error)
 	GetAllMartinReportLists(context.Context) ([]models.MartinReportList, error)
-	GetMartinReportProductsByReportID(context.Context, int) ([]models.MartinReportProduct, error)
+	GetReportProductsByReportID(context.Context, int) ([]models.ReportProduct, error)
 	CreateMartinReportList(context.Context, string) (models.MartinReportList, error)
 	DeleteMartinReportList(context.Context, int) error
-	SetMartinReportProducts(context.Context, int, []models.MartinReportProduct) error
+	SetReportProducts(context.Context, int, []models.ReportProduct) error
 } = (*ReportRepository)(nil)

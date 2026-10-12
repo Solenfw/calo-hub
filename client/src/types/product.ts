@@ -20,8 +20,8 @@ export interface MartinReportListResponse {
     name: string;
 }
 
-/** Matches server/internal/dto.MartinReportProductResponse. */
-export interface MartinReportProductResponse {
+/** Matches server/internal/dto.ReportProductResponse. */
+export interface ReportProductResponse {
     row_no:      number;
     code:        string;
     description: string;
@@ -36,7 +36,7 @@ export interface CreateMartinReportRequest {
 
 /** Request payload for replacing the instrument rows in a Martin report. */
 export interface UpdateMartinReportRequest {
-    products: MartinReportProductResponse[];
+    products: ReportProductResponse[];
 }
 
 /** Matches the error payload written by the server handlers. */

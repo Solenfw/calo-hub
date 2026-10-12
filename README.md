@@ -23,13 +23,13 @@ The router registers the main routes:
 - `GET /catalog/products/{code}`
 - `GET /catalog/images/{code}`
 - `GET /report/martin`
-- `GET /report/martin/{name}`
-- `GET /report/martin/all/{report_id}`
-- `GET /report/martin/{name}/pdf`
-- `GET /report/martin/template`
+- `GET /report/{name}`
+- `GET /report/all/{report_id}`
+- `GET /report/{name}/pdf`
+- `GET /report/template`
 - `POST /report/martin`
-- `PUT /report/martin/{report_id}/products`
-- `DELETE /report/martin/{report_id}`
+- `PUT /report/{report_id}/products`
+- `DELETE /report/{report_id}`
 
 The report flow includes backend image resolution: when a report row has no explicit image URL, the backend resolves it from catalog data before generating the PDF.
 

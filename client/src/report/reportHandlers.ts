@@ -1,7 +1,7 @@
 import {
    CreateMartinReportRequest,
    MartinReportListResponse,
-   MartinReportProductResponse,
+   ReportProductResponse,
    UpdateMartinReportRequest,
    ApiErrorResponse
 } from '@/types';
@@ -45,10 +45,10 @@ export const createMartinReport = async (name: string): Promise<MartinReportList
     }
 };
 
-/** DELETE /report/martin/{id} */
+/** DELETE /report/{id} */
 export const deleteMartinReport = async (reportId: number): Promise<boolean> => {
     try {
-        await request<{ status: string }>(`/report/martin/${reportId}`, {
+        await request<{ status: string }>(`/report/${reportId}`, {
             method: 'DELETE',
         });
         return true;
@@ -58,11 +58,11 @@ export const deleteMartinReport = async (reportId: number): Promise<boolean> => 
     }
 };
 
-/** PUT /report/martin/{id}/products */
-export const updateReportProducts = async (reportId: number, products: MartinReportProductResponse[]): Promise<boolean> => {
+/** PUT /report/{id}/products */
+export const updateReportProducts = async (reportId: number, products: ReportProductResponse[]): Promise<boolean> => {
     try {
         const payload: UpdateMartinReportRequest = { products };
-        await request<{ status: string }>(`/report/martin/${reportId}/products`, {
+        await request<{ status: string }>(`/report/${reportId}/products`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -74,38 +74,38 @@ export const updateReportProducts = async (reportId: number, products: MartinRep
     }
 };
 
-/** GET /report/martin/{name} */
+/** GET /report/{name} */
 export const getMartinReportByName = async (name: string): Promise<MartinReportListResponse | null> => {
     try {
-        return await request<MartinReportListResponse>(`/report/martin/${encodeURIComponent(name)}`);
+        return await request<MartinReportListResponse>(`/report/${encodeURIComponent(name)}`);
     } catch (error) {
         console.error('Error fetching Martin report:', error);
         return null;
     }
 };
 
-/** GET /report/martin/all/{report_id} */
-export const getMartinReportProducts = async (reportId: number): Promise<MartinReportProductResponse[]> => {
+/** GET /report/all/{report_id} */
+export const getReportProducts = async (reportId: number): Promise<ReportProductResponse[]> => {
     try {
-        return await request<MartinReportProductResponse[]>(`/report/martin/all/${reportId}`);
+        return await request<ReportProductResponse[]>(`/report/all/${reportId}`);
     } catch (error) {
         console.error('Error fetching Martin report products:', error);
         return [];
     }
 };
 
-/** GET /report/martin/template */
+/** GET /report/template */
 export const downloadImportTemplate = async (): Promise<Blob> => {
-    const response = await fetch(`${API_BASE_URL}/report/martin/template`);
+    const response = await fetch(`${API_BASE_URL}/report/template`);
     if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
     }
     return await response.blob();
 };
 
-/** GET /report/martin/{name}/pdf */
+/** GET /report/{name}/pdf */
 export const exportMartinReportPdf = async (reportName: string): Promise<Blob> => {
-    const response = await fetch(`${API_BASE_URL}/report/martin/${encodeURIComponent(reportName)}/pdf`);
+    const response = await fetch(`${API_BASE_URL}/report/${encodeURIComponent(reportName)}/pdf`);
     if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
     }

@@ -57,10 +57,10 @@ func (s *recordingCatalogStore) GetMartinReportListByName(_ context.Context, nam
 	return models.MartinReportList{Name: name}, nil
 }
 
-func (s *recordingCatalogStore) GetMartinReportProductsByReportID(_ context.Context, reportID int) ([]models.MartinReportProduct, error) {
-	s.called = "GetMartinReportProductsByReportID"
+func (s *recordingCatalogStore) GetReportProductsByReportID(_ context.Context, reportID int) ([]models.ReportProduct, error) {
+	s.called = "GetReportProductsByReportID"
 	s.reportID = reportID
-	return []models.MartinReportProduct{}, nil
+	return []models.ReportProduct{}, nil
 }
 
 func (s *recordingCatalogStore) CreateMartinReportList(_ context.Context, name string) (models.MartinReportList, error) {
@@ -75,8 +75,8 @@ func (s *recordingCatalogStore) DeleteMartinReportList(_ context.Context, report
 	return nil
 }
 
-func (s *recordingCatalogStore) SetMartinReportProducts(_ context.Context, reportID int, products []models.MartinReportProduct) error {
-	s.called = "SetMartinReportProducts"
+func (s *recordingCatalogStore) SetReportProducts(_ context.Context, reportID int, products []models.ReportProduct) error {
+	s.called = "SetReportProducts"
 	s.reportID = reportID
 	return nil
 }
@@ -121,21 +121,21 @@ func TestNewRoutesDispatchToExpectedHandler(t *testing.T) {
 		},
 		{
 			name:       "Martin report name route",
-			path:       "/report/martin/monthly",
+			path:       "/report/monthly",
 			wantCalled: "GetMartinReportListByName",
 			wantName:   "monthly",
 		},
 		{
 			name:       "Martin report PDF route",
-			path:       "/report/martin/monthly/pdf",
-			wantCalled: "GetMartinReportProductsByReportID",
+			path:       "/report/monthly/pdf",
+			wantCalled: "GetReportProductsByReportID",
 			wantName:   "monthly",
 			wantID:     0,
 		},
 		{
 			name:       "Martin report products route",
-			path:       "/report/martin/all/42",
-			wantCalled: "GetMartinReportProductsByReportID",
+			path:       "/report/all/42",
+			wantCalled: "GetReportProductsByReportID",
 			wantID:     42,
 		},
 	}
@@ -173,7 +173,7 @@ func TestNewRoutesServesMartinTemplateDownload(t *testing.T) {
 	r := router.New(handler.NewCatalogHandler(store), handler.NewReportHandler(store))
 	recorder := httptest.NewRecorder()
 
-	r.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/report/martin/template", nil))
+	r.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/report/template", nil))
 
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)

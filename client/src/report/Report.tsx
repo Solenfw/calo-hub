@@ -16,13 +16,13 @@ import {
   deleteMartinReport,
   downloadImportTemplate,
   exportMartinReportPdf,
-  getMartinReportProducts,
+  getReportProducts,
   listMartinReports,
   updateReportProducts,
 } from "@/report/reportHandlers";
-import type { MartinReportListResponse, MartinReportProductResponse } from "@/types";
+import type { MartinReportListResponse, ReportProductResponse } from "@/types";
 
-type InstrumentRow = MartinReportProductResponse;
+type InstrumentRow = ReportProductResponse;
 
 const createInstrumentRow = (rowNo: number): InstrumentRow => ({
   row_no: rowNo,
@@ -55,7 +55,7 @@ export function Report() {
       const first = nextReports[0];
       setSelectedReportId(first.id);
       setSelectedReportName(first.name);
-      const products = await getMartinReportProducts(first.id);
+      const products = await getReportProducts(first.id);
       setInstruments(products.map((product, index) => ({ ...product, row_no: product.row_no || index + 1 })));
     } else {
       setSelectedReportId(null);
@@ -69,7 +69,7 @@ export function Report() {
   const selectReport = async (report: MartinReportListResponse) => {
     setSelectedReportId(report.id);
     setSelectedReportName(report.name);
-    const products = await getMartinReportProducts(report.id);
+    const products = await getReportProducts(report.id);
     setInstruments(products.map((product, index) => ({ ...product, row_no: product.row_no || index + 1 })));
   };
 
@@ -115,7 +115,7 @@ export function Report() {
     if (selectedReportId === reportId) {
       setSelectedReportId(nextReports[0]?.id ?? null);
       setSelectedReportName(nextReports[0]?.name ?? "");
-      setInstruments(nextReports[0] ? await getMartinReportProducts(nextReports[0].id) : []);
+      setInstruments(nextReports[0] ? await getReportProducts(nextReports[0].id) : []);
     }
     setError(null);
   };
@@ -159,7 +159,7 @@ export function Report() {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
 
-      const imported: MartinReportProductResponse[] = rows.flatMap((row, index) => {
+      const imported: ReportProductResponse[] = rows.flatMap((row, index) => {
         const code = String(row.code ?? row.Code ?? row["Code"] ?? "").trim();
         const description = String(
           row.description ?? row.Description ?? row["Description"] ?? "",

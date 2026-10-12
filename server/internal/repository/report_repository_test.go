@@ -20,7 +20,7 @@ func seedReportRepositoryFixtures(t *testing.T) reportRepositoryFixtures {
 	ctx := context.Background()
 
 	if _, err := pool.Exec(ctx, `
-		TRUNCATE martin_report_products, martin_report_list, images, products
+		TRUNCATE report_products, report_list, images, products
 		RESTART IDENTITY CASCADE;
 	`); err != nil {
 		t.Fatalf("truncate fixtures: %v", err)
@@ -37,18 +37,18 @@ func seedReportRepositoryFixtures(t *testing.T) reportRepositoryFixtures {
 
 	var fixtures reportRepositoryFixtures
 	if err := pool.QueryRow(ctx,
-		`INSERT INTO martin_report_list (name) VALUES ('Report With Products') RETURNING id`,
+		`INSERT INTO report_list (name) VALUES ('Report With Products') RETURNING id`,
 	).Scan(&fixtures.reportWithProductsID); err != nil {
 		t.Fatalf("seed populated report: %v", err)
 	}
 	if err := pool.QueryRow(ctx,
-		`INSERT INTO martin_report_list (name) VALUES ('Empty Report') RETURNING id`,
+		`INSERT INTO report_list (name) VALUES ('Empty Report') RETURNING id`,
 	).Scan(&fixtures.emptyReportID); err != nil {
 		t.Fatalf("seed empty report: %v", err)
 	}
 
 	if _, err := pool.Exec(ctx, `
-		INSERT INTO martin_report_products (report_id, row_no, code, description, image, quantity) VALUES
+		INSERT INTO report_products (report_id, row_no, code, description, image, quantity) VALUES
 			($1, 1, 'P-001', 'Frozen Alpha Clamp', 'frozen-alpha.png', 3),
 			($1, 2, 'P-002', 'Frozen Valve Holder', NULL, 1);
 	`, fixtures.reportWithProductsID); err != nil {
@@ -95,7 +95,7 @@ func TestReportRepositoryMartinReportLists(t *testing.T) {
 	})
 
 	t.Run("zero lists", func(t *testing.T) {
-		if _, err := repositoryTestPool(t).Exec(ctx, `DELETE FROM martin_report_list`); err != nil {
+		if _, err := repositoryTestPool(t).Exec(ctx, `DELETE FROM report_list`); err != nil {
 			t.Fatalf("delete report lists: %v", err)
 		}
 		got, err := repo.GetAllMartinReportLists(ctx)
@@ -115,11 +115,11 @@ func TestReportRepositoryProducts(t *testing.T) {
 	snapshotImage := "frozen-alpha.png"
 
 	t.Run("reads frozen snapshot fields in row order", func(t *testing.T) {
-		got, err := repo.GetMartinReportProductsByReportID(ctx, fixtures.reportWithProductsID)
+		got, err := repo.GetReportProductsByReportID(ctx, fixtures.reportWithProductsID)
 		if err != nil {
-			t.Fatalf("GetMartinReportProductsByReportID() error = %v", err)
+			t.Fatalf("GetReportProductsByReportID() error = %v", err)
 		}
-		want := []models.MartinReportProduct{
+		want := []models.ReportProduct{
 			{ReportID: fixtures.reportWithProductsID, RowNo: 1, Code: "P-001", Description: "Frozen Alpha Clamp", Image: &snapshotImage, Quantity: 3},
 			{ReportID: fixtures.reportWithProductsID, RowNo: 2, Code: "P-002", Description: "Frozen Valve Holder", Image: nil, Quantity: 1},
 		}
@@ -129,9 +129,9 @@ func TestReportRepositoryProducts(t *testing.T) {
 	})
 
 	t.Run("existing report with zero products", func(t *testing.T) {
-		got, err := repo.GetMartinReportProductsByReportID(ctx, fixtures.emptyReportID)
+		got, err := repo.GetReportProductsByReportID(ctx, fixtures.emptyReportID)
 		if err != nil {
-			t.Fatalf("GetMartinReportProductsByReportID() error = %v", err)
+			t.Fatalf("GetReportProductsByReportID() error = %v", err)
 		}
 		if got == nil || len(got) != 0 {
 			t.Fatalf("report products = %#v, want non-nil empty slice", got)
@@ -139,7 +139,7 @@ func TestReportRepositoryProducts(t *testing.T) {
 	})
 
 	t.Run("missing report", func(t *testing.T) {
-		_, err := repo.GetMartinReportProductsByReportID(ctx, 404)
+		_, err := repo.GetReportProductsByReportID(ctx, 404)
 		if !errors.Is(err, ErrNotFound) {
 			t.Fatalf("error = %v, want ErrNotFound", err)
 		}
@@ -162,25 +162,25 @@ func TestReportRepositoryCRUD(t *testing.T) {
 	})
 
 	t.Run("replace products", func(t *testing.T) {
-		products := []models.MartinReportProduct{
+		products := []models.ReportProduct{
 			{ReportID: fixtures.reportWithProductsID, RowNo: 1, Code: "P-003", Description: "Beta Retractor", Quantity: 5},
 			{ReportID: fixtures.reportWithProductsID, RowNo: 2, Code: "P-001", Description: "Live Alpha Clamp", Quantity: 1},
 		}
-		if err := repo.SetMartinReportProducts(ctx, fixtures.reportWithProductsID, products); err != nil {
-			t.Fatalf("SetMartinReportProducts() error = %v", err)
+		if err := repo.SetReportProducts(ctx, fixtures.reportWithProductsID, products); err != nil {
+			t.Fatalf("SetReportProducts() error = %v", err)
 		}
-		got, err := repo.GetMartinReportProductsByReportID(ctx, fixtures.reportWithProductsID)
+		got, err := repo.GetReportProductsByReportID(ctx, fixtures.reportWithProductsID)
 		if err != nil {
-			t.Fatalf("GetMartinReportProductsByReportID() error = %v", err)
+			t.Fatalf("GetReportProductsByReportID() error = %v", err)
 		}
 		if !reflect.DeepEqual(got, products) {
 			t.Fatalf("products = %#v, want %#v", got, products)
 		}
 
-		if err := repo.SetMartinReportProducts(ctx, fixtures.reportWithProductsID, nil); err != nil {
-			t.Fatalf("SetMartinReportProducts(empty) error = %v", err)
+		if err := repo.SetReportProducts(ctx, fixtures.reportWithProductsID, nil); err != nil {
+			t.Fatalf("SetReportProducts(empty) error = %v", err)
 		}
-		got, err = repo.GetMartinReportProductsByReportID(ctx, fixtures.reportWithProductsID)
+		got, err = repo.GetReportProductsByReportID(ctx, fixtures.reportWithProductsID)
 		if err != nil || len(got) != 0 {
 			t.Fatalf("products after empty replace = %#v, error = %v", got, err)
 		}
@@ -192,10 +192,10 @@ func TestReportRepositoryCRUD(t *testing.T) {
 		}
 		var reportCount, productCount int
 		pool := repositoryTestPool(t)
-		if err := pool.QueryRow(ctx, `SELECT COUNT(*) FROM martin_report_list WHERE id = $1`, fixtures.reportWithProductsID).Scan(&reportCount); err != nil {
+		if err := pool.QueryRow(ctx, `SELECT COUNT(*) FROM report_list WHERE id = $1`, fixtures.reportWithProductsID).Scan(&reportCount); err != nil {
 			t.Fatalf("count report rows: %v", err)
 		}
-		if err := pool.QueryRow(ctx, `SELECT COUNT(*) FROM martin_report_products WHERE report_id = $1`, fixtures.reportWithProductsID).Scan(&productCount); err != nil {
+		if err := pool.QueryRow(ctx, `SELECT COUNT(*) FROM report_products WHERE report_id = $1`, fixtures.reportWithProductsID).Scan(&productCount); err != nil {
 			t.Fatalf("count product rows: %v", err)
 		}
 		if reportCount != 0 || productCount != 0 {
@@ -207,8 +207,8 @@ func TestReportRepositoryCRUD(t *testing.T) {
 		if err := repo.DeleteMartinReportList(ctx, 99999); !errors.Is(err, ErrNotFound) {
 			t.Fatalf("DeleteMartinReportList() error = %v, want ErrNotFound", err)
 		}
-		if err := repo.SetMartinReportProducts(ctx, 99999, nil); !errors.Is(err, ErrNotFound) {
-			t.Fatalf("SetMartinReportProducts() error = %v, want ErrNotFound", err)
+		if err := repo.SetReportProducts(ctx, 99999, nil); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("SetReportProducts() error = %v, want ErrNotFound", err)
 		}
 	})
 }

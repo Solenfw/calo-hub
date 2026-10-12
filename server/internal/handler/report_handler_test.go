@@ -18,10 +18,10 @@ import (
 type fakeReportStore struct {
 	getAllMartinReportLists           func(context.Context) ([]models.MartinReportList, error)
 	getMartinReportListByName         func(context.Context, string) (models.MartinReportList, error)
-	getMartinReportProductsByReportID func(context.Context, int) ([]models.MartinReportProduct, error)
+	getReportProductsByReportID func(context.Context, int) ([]models.ReportProduct, error)
 	createMartinReportList            func(context.Context, string) (models.MartinReportList, error)
 	deleteMartinReportList            func(context.Context, int) error
-	setMartinReportProducts       func(context.Context, int, []models.MartinReportProduct) error
+	setReportProducts       func(context.Context, int, []models.ReportProduct) error
 }
 
 func (f *fakeReportStore) GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error) {
@@ -38,9 +38,9 @@ func (f *fakeReportStore) GetMartinReportListByName(ctx context.Context, name st
 	return models.MartinReportList{}, nil
 }
 
-func (f *fakeReportStore) GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error) {
-	if f.getMartinReportProductsByReportID != nil {
-		return f.getMartinReportProductsByReportID(ctx, reportID)
+func (f *fakeReportStore) GetReportProductsByReportID(ctx context.Context, reportID int) ([]models.ReportProduct, error) {
+	if f.getReportProductsByReportID != nil {
+		return f.getReportProductsByReportID(ctx, reportID)
 	}
 	return nil, nil
 }
@@ -59,9 +59,9 @@ func (f *fakeReportStore) DeleteMartinReportList(ctx context.Context, reportID i
 	return nil
 }
 
-func (f *fakeReportStore) SetMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error {
-	if f.setMartinReportProducts != nil {
-		return f.setMartinReportProducts(ctx, reportID, products)
+func (f *fakeReportStore) SetReportProducts(ctx context.Context, reportID int, products []models.ReportProduct) error {
+	if f.setReportProducts != nil {
+		return f.setReportProducts(ctx, reportID, products)
 	}
 	return nil
 }
@@ -114,7 +114,7 @@ func TestCatalogHandlerGetMartinReportByName(t *testing.T) {
 			}
 			h := NewReportHandler(store)
 			recorder := httptest.NewRecorder()
-			h.GetMartinReportByName(recorder, requestWithRouteParams(http.MethodGet, "/report/martin/"+url.PathEscape(tt.reportName), map[string]string{"name": tt.reportName}))
+			h.GetMartinReportByName(recorder, requestWithRouteParams(http.MethodGet, "/report/"+url.PathEscape(tt.reportName), map[string]string{"name": tt.reportName}))
 
 			if tt.wantError != "" {
 				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
@@ -144,7 +144,7 @@ func TestReportHandlerListMartinReports(t *testing.T) {
 func TestReportHandlerDownloadImportTemplate(t *testing.T) {
 	h := NewReportHandler(&fakeReportStore{})
 	recorder := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/report/martin/template", nil)
+	req := httptest.NewRequest(http.MethodGet, "/report/template", nil)
 
 	h.DownloadImportTemplate(recorder, req)
 
@@ -165,7 +165,7 @@ func TestReportHandlerGetMartinReport(t *testing.T) {
 		name       string
 		reportName string
 		reportID   int
-		products   []models.MartinReportProduct
+		products   []models.ReportProduct
 		storeError error
 		wantStatus int
 		wantError  string
@@ -195,7 +195,7 @@ func TestReportHandlerGetMartinReport(t *testing.T) {
 			name:       "failed to generate PDF",
 			reportName: "Report A",
 			reportID:   7,
-			products:   []models.MartinReportProduct{{ReportID: 7, RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 1}},
+			products:   []models.ReportProduct{{ReportID: 7, RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 1}},
 			wantStatus: http.StatusOK,
 			wantPDF:    true,
 		},
@@ -203,7 +203,7 @@ func TestReportHandlerGetMartinReport(t *testing.T) {
 			name:       "valid report generates PDF",
 			reportName: "Report A",
 			reportID:   7,
-			products:   []models.MartinReportProduct{{ReportID: 7, RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 1}},
+			products:   []models.ReportProduct{{ReportID: 7, RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 1}},
 			wantStatus: http.StatusOK,
 			wantPDF:    true,
 		},
@@ -221,7 +221,7 @@ func TestReportHandlerGetMartinReport(t *testing.T) {
 					}
 					return models.MartinReportList{ID: tt.reportID, Name: name}, tt.storeError
 				},
-				getMartinReportProductsByReportID: func(_ context.Context, reportID int) ([]models.MartinReportProduct, error) {
+				getReportProductsByReportID: func(_ context.Context, reportID int) ([]models.ReportProduct, error) {
 					if tt.reportID != 0 && reportID != tt.reportID {
 						t.Errorf("store report ID = %d, want %d", reportID, tt.reportID)
 					}
@@ -233,7 +233,7 @@ func TestReportHandlerGetMartinReport(t *testing.T) {
 			}
 			h := NewReportHandler(store)
 			recorder := httptest.NewRecorder()
-			h.GetMartinReport(recorder, requestWithRouteParams(http.MethodGet, "/report/martin/"+url.PathEscape(tt.reportName)+"/pdf", map[string]string{"name": tt.reportName}))
+			h.GetMartinReport(recorder, requestWithRouteParams(http.MethodGet, "/report/"+url.PathEscape(tt.reportName)+"/pdf", map[string]string{"name": tt.reportName}))
 
 			if tt.wantError != "" {
 				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)
@@ -298,15 +298,15 @@ func TestReportHandlerDeleteMartinReport(t *testing.T) {
 	}
 	h := NewReportHandler(store)
 	recorder := httptest.NewRecorder()
-	request := requestWithRouteParams(http.MethodDelete, "/report/martin/7", map[string]string{"report_id": "7"})
+	request := requestWithRouteParams(http.MethodDelete, "/report/7", map[string]string{"report_id": "7"})
 	h.DeleteMartinReport(recorder, request)
 
 	assertJSONSuccess(t, recorder, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
-func TestReportHandlerUpdateMartinReportProducts(t *testing.T) {
+func TestReportHandlerUpdateReportProducts(t *testing.T) {
 	store := &fakeReportStore{
-		setMartinReportProducts: func(_ context.Context, reportID int, products []models.MartinReportProduct) error {
+		setReportProducts: func(_ context.Context, reportID int, products []models.ReportProduct) error {
 			if reportID != 7 {
 				t.Fatalf("report ID = %d, want 7", reportID)
 			}
@@ -319,9 +319,9 @@ func TestReportHandlerUpdateMartinReportProducts(t *testing.T) {
 	h := NewReportHandler(store)
 	recorder := httptest.NewRecorder()
 	payload := `{"products":[{"row_no":1,"code":"AA804R","description":"Ruler","image":"https://example.test/image.png","quantity":1},{"row_no":2,"code":"AA805R","description":"Scale","image":"","quantity":2}]}`
-	request := requestWithRouteParams(http.MethodPut, "/report/martin/7/products", map[string]string{"report_id": "7"})
+	request := requestWithRouteParams(http.MethodPut, "/report/7/products", map[string]string{"report_id": "7"})
 	request.Body = io.NopCloser(strings.NewReader(payload))
-	h.UpdateMartinReportProducts(recorder, request)
+	h.UpdateReportProducts(recorder, request)
 
 	assertJSONSuccess(t, recorder, http.StatusOK, map[string]string{"status": "updated"})
 }
@@ -329,8 +329,8 @@ func TestReportHandlerUpdateMartinReportProducts(t *testing.T) {
 func TestReportHandlerResolvesCatalogImageWhenMissingFromReport(t *testing.T) {
 	image := "https://example.test/image.png"
 	store := &fakeReportStore{
-		getMartinReportProductsByReportID: func(_ context.Context, reportID int) ([]models.MartinReportProduct, error) {
-			return []models.MartinReportProduct{{ReportID: reportID, RowNo: 1, Code: "AA804R", Description: "Ruler", Image: nil, Quantity: 2}}, nil
+		getReportProductsByReportID: func(_ context.Context, reportID int) ([]models.ReportProduct, error) {
+			return []models.ReportProduct{{ReportID: reportID, RowNo: 1, Code: "AA804R", Description: "Ruler", Image: nil, Quantity: 2}}, nil
 		},
 	}
 	catalog := &fakeCatalogStore{
@@ -344,21 +344,21 @@ func TestReportHandlerResolvesCatalogImageWhenMissingFromReport(t *testing.T) {
 
 	h := NewReportHandler(store, catalog)
 	recorder := httptest.NewRecorder()
-	h.GetMartinReportProducts(recorder, requestWithRouteParams(http.MethodGet, "/report/martin/all/42", map[string]string{"report_id": "42"}))
+	h.GetReportProducts(recorder, requestWithRouteParams(http.MethodGet, "/report/all/42", map[string]string{"report_id": "42"}))
 
-	assertJSONSuccess(t, recorder, http.StatusOK, []dto.MartinReportProductResponse{{RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 2}})
+	assertJSONSuccess(t, recorder, http.StatusOK, []dto.ReportProductResponse{{RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 2}})
 }
 
-func TestCatalogHandlerGetMartinReportProducts(t *testing.T) {
+func TestCatalogHandlerGetReportProducts(t *testing.T) {
 	image := "https://example.test/image.png"
 	tests := []struct {
 		name       string
 		reportID   string
-		products   []models.MartinReportProduct
+		products   []models.ReportProduct
 		storeError error
 		wantStatus int
 		wantError  string
-		wantBody   []dto.MartinReportProductResponse
+		wantBody   []dto.ReportProductResponse
 	}{
 		{
 			name:       "missing report ID",
@@ -386,12 +386,12 @@ func TestCatalogHandlerGetMartinReportProducts(t *testing.T) {
 		{
 			name:     "valid report ID returns DTOs",
 			reportID: "42",
-			products: []models.MartinReportProduct{
+			products: []models.ReportProduct{
 				{ReportID: 42, RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 2},
 				{ReportID: 42, RowNo: 2, Code: "AA805R", Description: "Scale", Image: nil, Quantity: 1},
 			},
 			wantStatus: http.StatusOK,
-			wantBody: []dto.MartinReportProductResponse{
+			wantBody: []dto.ReportProductResponse{
 				{RowNo: 1, Code: "AA804R", Description: "Ruler", Image: &image, Quantity: 2},
 				{RowNo: 2, Code: "AA805R", Description: "Scale", Image: nil, Quantity: 1},
 			},
@@ -399,9 +399,9 @@ func TestCatalogHandlerGetMartinReportProducts(t *testing.T) {
 		{
 			name:       "zero products become empty array",
 			reportID:   "42",
-			products:   []models.MartinReportProduct{},
+			products:   []models.ReportProduct{},
 			wantStatus: http.StatusOK,
-			wantBody:   []dto.MartinReportProductResponse{},
+			wantBody:   []dto.ReportProductResponse{},
 		},
 		{
 			name:       "not found",
@@ -422,7 +422,7 @@ func TestCatalogHandlerGetMartinReportProducts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := &fakeReportStore{
-				getMartinReportProductsByReportID: func(_ context.Context, reportID int) ([]models.MartinReportProduct, error) {
+				getReportProductsByReportID: func(_ context.Context, reportID int) ([]models.ReportProduct, error) {
 					if tt.reportID != "" && reportID != 42 {
 						t.Errorf("store report ID = %d, want 42", reportID)
 					}
@@ -431,7 +431,7 @@ func TestCatalogHandlerGetMartinReportProducts(t *testing.T) {
 			}
 			h := NewReportHandler(store)
 			recorder := httptest.NewRecorder()
-			h.GetMartinReportProducts(recorder, requestWithRouteParams(http.MethodGet, "/report/martin/all/"+tt.reportID, map[string]string{"report_id": tt.reportID}))
+			h.GetReportProducts(recorder, requestWithRouteParams(http.MethodGet, "/report/all/"+tt.reportID, map[string]string{"report_id": tt.reportID}))
 
 			if tt.wantError != "" {
 				assertJSONError(t, recorder, tt.wantStatus, tt.wantError)

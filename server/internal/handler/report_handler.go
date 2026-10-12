@@ -31,10 +31,10 @@ import (
 type ReportStore interface {
 	GetAllMartinReportLists(ctx context.Context) ([]models.MartinReportList, error)
 	GetMartinReportListByName(ctx context.Context, name string) (models.MartinReportList, error)
-	GetMartinReportProductsByReportID(ctx context.Context, reportID int) ([]models.MartinReportProduct, error)
+	GetReportProductsByReportID(ctx context.Context, reportID int) ([]models.ReportProduct, error)
 	CreateMartinReportList(ctx context.Context, name string) (models.MartinReportList, error)
 	DeleteMartinReportList(ctx context.Context, reportID int) error
-	SetMartinReportProducts(ctx context.Context, reportID int, products []models.MartinReportProduct) error
+	SetReportProducts(ctx context.Context, reportID int, products []models.ReportProduct) error
 }
 
 var _ ReportStore = (*repository.ReportRepository)(nil)
@@ -59,12 +59,12 @@ func NewReportHandler(store ReportStore, catalogStores ...CatalogStore) *ReportH
 	}
 }
 
-func (h *ReportHandler) resolveReportProductImages(ctx context.Context, products []models.MartinReportProduct) ([]models.MartinReportProduct, error) {
+func (h *ReportHandler) resolveReportProductImages(ctx context.Context, products []models.ReportProduct) ([]models.ReportProduct, error) {
 	if h.catalog == nil || len(products) == 0 {
 		return products, nil
 	}
 
-	resolved := make([]models.MartinReportProduct, len(products))
+	resolved := make([]models.ReportProduct, len(products))
 	copy(resolved, products)
 
 	for i, product := range resolved {
@@ -178,8 +178,8 @@ func (h *ReportHandler) DeleteMartinReport(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
-// UpdateMartinReportProducts replaces the product rows attached to one report.
-func (h *ReportHandler) UpdateMartinReportProducts(w http.ResponseWriter, r *http.Request) {
+// UpdateReportProducts replaces the product rows attached to one report.
+func (h *ReportHandler) UpdateReportProducts(w http.ResponseWriter, r *http.Request) {
 	reportID := strings.TrimSpace(chi.URLParam(r, "report_id"))
 	id, err := strconv.Atoi(reportID)
 	if err != nil || id <= 0 {
@@ -187,15 +187,15 @@ func (h *ReportHandler) UpdateMartinReportProducts(w http.ResponseWriter, r *htt
 		return
 	}
 
-	var payload dto.MartinReportProductsRequest
+	var payload dto.ReportProductsRequest
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid product payload")
 		return
 	}
 
-	products := make([]models.MartinReportProduct, 0, len(payload.Products))
+	products := make([]models.ReportProduct, 0, len(payload.Products))
 	for idx, item := range payload.Products {
-		products = append(products, models.MartinReportProduct{
+		products = append(products, models.ReportProduct{
 			ReportID: 		id,
 			RowNo:    		item.RowNo,
 			Code:     		item.Code,
@@ -208,7 +208,7 @@ func (h *ReportHandler) UpdateMartinReportProducts(w http.ResponseWriter, r *htt
 		}
 	}
 
-	if err := h.store.SetMartinReportProducts(r.Context(), id, products); err != nil {
+	if err := h.store.SetReportProducts(r.Context(), id, products); err != nil {
 		writeRepositoryError(w, err)
 		return
 	}
@@ -216,8 +216,8 @@ func (h *ReportHandler) UpdateMartinReportProducts(w http.ResponseWriter, r *htt
 	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 }
 
-// GetMartinReportProducts returns all products attached to a Martin report.
-func (h *ReportHandler) GetMartinReportProducts(w http.ResponseWriter, r *http.Request) {
+// GetReportProducts returns all products attached to a Martin report.
+func (h *ReportHandler) GetReportProducts(w http.ResponseWriter, r *http.Request) {
 	reportID := strings.TrimSpace(chi.URLParam(r, "report_id"))
 
 	reportIDInt, err := strconv.Atoi(reportID)
@@ -226,7 +226,7 @@ func (h *ReportHandler) GetMartinReportProducts(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	products, err := h.store.GetMartinReportProductsByReportID(r.Context(), reportIDInt)
+	products, err := h.store.GetReportProductsByReportID(r.Context(), reportIDInt)
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
@@ -238,9 +238,9 @@ func (h *ReportHandler) GetMartinReportProducts(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	resp := make([]dto.MartinReportProductResponse, 0, len(products))
+	resp := make([]dto.ReportProductResponse, 0, len(products))
 	for _, product := range products {
-		resp = append(resp, dto.MartinReportProductResponse{
+		resp = append(resp, dto.ReportProductResponse{
 			RowNo:    			product.RowNo,
 			Code:     			product.Code,
 			Description:      product.Description,
@@ -266,7 +266,7 @@ func (h *ReportHandler) GetMartinReport(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	products, err := h.store.GetMartinReportProductsByReportID(r.Context(), report.ID)
+	products, err := h.store.GetReportProductsByReportID(r.Context(), report.ID)
 	if err != nil {
 		writeRepositoryError(w, err)
 		return
@@ -333,11 +333,11 @@ func (h *ReportHandler) DownloadImportTemplate(w http.ResponseWriter, r *http.Re
 
 func (h *ReportHandler) RegisterRoutes(r chi.Router) {
 	r.Get("/report/martin", h.ListMartinReports)
-	r.Get("/report/martin/template", h.DownloadImportTemplate)
-	r.Get("/report/martin/{name}", h.GetMartinReportByName)
+	r.Get("/report/template", h.DownloadImportTemplate)
+	r.Get("/report/{name}", h.GetMartinReportByName)
 	r.Post("/report/martin", h.CreateMartinReport)
-	r.Delete("/report/martin/{report_id}", h.DeleteMartinReport)
-	r.Put("/report/martin/{report_id}/products", h.UpdateMartinReportProducts)
-	r.Get("/report/martin/{name}/pdf", h.GetMartinReport)
-	r.Get("/report/martin/all/{report_id}", h.GetMartinReportProducts)
+	r.Delete("/report/{report_id}", h.DeleteMartinReport)
+	r.Put("/report/{report_id}/products", h.UpdateReportProducts)
+	r.Get("/report/{name}/pdf", h.GetMartinReport)
+	r.Get("/report/all/{report_id}", h.GetReportProducts)
 }
