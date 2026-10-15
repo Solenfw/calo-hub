@@ -73,9 +73,9 @@ client-local-run:
 client-install:
 	cd client && npm install
 
-## Build images if needed and start the local database and API in the background.
+## start the local database container.
 compose:
-	docker compose up -d --build
+	docker compose up -d
 
 ## Build the images declared by docker-compose.yml without starting containers.
 compose-build:
